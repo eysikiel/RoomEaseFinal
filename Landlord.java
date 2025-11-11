@@ -1,3 +1,4 @@
+
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -153,7 +154,6 @@ public class Landlord extends User {
     @Override
     public void displayProfile() {
     } */
-
     public void displayLandlordMenu() {
 
         do {
