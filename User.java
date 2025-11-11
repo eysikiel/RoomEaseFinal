@@ -74,12 +74,17 @@ public abstract class User {
         return role;
     }
 
+    public boolean verifyLogin(String username, String password) {
+        System.out.println("Welcome to RoomEase!");
+        System.out.println("Please enter your login credentials.");
+        System.out.println("Verifying credentials for user: " + username);
+        return this.username.equals(username) && this.password.equals(password);
+    }
 
+    public void logout() {
+        System.out.println("User " + this.username + " has logged out.");
+    }
 
-    // public boolean verifyLogin(String username, String password) {}
-
-    //public void logout() {}
-
-    //public abstract void displayProfile() {}
+    // public abstract void displayProfile() {}
 
 }
