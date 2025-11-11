@@ -142,11 +142,11 @@ public class Tenant extends User {
     public void viewRoom(Room room) {
         System.out.println("===== ROOM DETAILS =====");
         System.out.println("Room ID: " + room.getRoomID());
-        System.out.println("Type: " + room.getType());
+        System.out.println("Type: " + room.getRoomType());
         System.out.println("Price: " + room.getPrice());
         System.out.println("Capacity: " + room.getCapacity());
         System.out.println("Amenities: " + room.getAmenities());
-        System.out.println("Status: " + room.getStatus());
+        System.out.println("Status: " + room.getRoomStatus());
         System.out.println("=========================");
     }
 
