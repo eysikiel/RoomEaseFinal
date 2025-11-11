@@ -1,4 +1,3 @@
-
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -123,7 +122,6 @@ public class Landlord extends User {
     }
 
     public void accessRoomManagement() {
-
     }
 
     public void accessTenantManagement() {
@@ -179,7 +177,7 @@ public class Landlord extends User {
                 choice = input.nextInt();
 
                 if (choice < 1 || choice > 10) {
-                    System.out.println("Invalid input. Please enter a number between 1 and 10.\n");
+                    System.out.println("Invalid input. Please enter a number between 1 and 10.");
                     continue;
                 }
                 handleLandlordChoice(choice);
