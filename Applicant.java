@@ -102,7 +102,7 @@ public class Applicant {
                 break;
 
             case 4:
-                System.out.print("Enter Viewing Request ID to cancel (or 'b'): ");
+                System.out.print("Enter Viewing Request ID to cancel (or 'b'):  ");
                 String reqID = input.nextLine();
                 if (!reqID.equalsIgnoreCase("b")) cancelViewing(reqID);
                 break;
