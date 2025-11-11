@@ -1,6 +1,7 @@
 public enum ContractStatus {
     Active,
     Expired,
-    Terminated
-    
+    Terminated,
+    PendingTermination,
+    PendingRenewal
 }
