@@ -186,6 +186,6 @@ public class Applicant {
     }
 
     private void sortAvailableRooms(String criteria, String order) {
-        System.out.println("Sorting rooms by " + criteria + " in " + order + " order...");
+        System.out.println("Sorting rooms by " + criteria + " in " + order + " order");
     }
 }
