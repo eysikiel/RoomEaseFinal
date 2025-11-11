@@ -1,4 +1,7 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import java.util.UUID;
 
 public abstract class User {
 
@@ -8,6 +11,7 @@ public abstract class User {
     protected String firstName;
     protected String lastName;
     protected String contactNumber;
+    private static List<User> users = new ArrayList<>();
     protected Role role;
 
     public User(String contactNumber, String firstName, String lastName, String password, String userID,
@@ -86,61 +90,129 @@ public abstract class User {
         LANDLORD,
         TENANT
     }
+public boolean verifyLogin(String username, String password) {
+        return this.username.equals(username) && this.password.equals(password);
+    }
+
+    public void logout(User currentUser) {
+        System.out.println("User " + currentUser.getFullName() + " has logged out.");
+    }
 
     public void displayLogInMenu() {
         Scanner input = new Scanner(System.in);
-        int choice = input.nextInt();
+        User currentUser = null;
 
         while (true) {
-            System.out.println("================== WELCOME to ROOMEASE! ==================");
-            System.out.println("[1] Log In");
-            System.out.println("[2] Log Out");
-            System.out.println("[3] Exit");
-            System.out.print("Please select an option (Pick from 1-3): ");
+            System.out.println("\n================== WELCOME to ROOMEASE! ==================");
+            System.out.println("[1] Register New Account");
+            System.out.println("[2] Log In");
+            System.out.println("[3] Log Out");
+            System.out.println("[4] Exit");
+            System.out.print("Please select an option (1-4): ");
+
+            int choice;
+            try {
+                choice = Integer.parseInt(input.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input! Please enter a number between 1-4.");
+                continue;
+            }
 
             switch (choice) {
-                case 1:
-                    System.out.print("Enter Username: ");
-                    String username = input.nextLine();
-                    if (username.isEmpty()) {
-                        System.out.println("Username cannot be empty. Please try again.");
-                        return;
+                case 1: // register
+                    if (currentUser != null) {
+                        System.out.println("You are already logged in as " + currentUser.getFullName() + ".");
+                        break;
                     }
-                    System.out.print("Enter Password: ");
-                    String password = input.nextLine();
 
-                    if (verifyLogin(username, password)) {
-                        System.out.println("Login successful! Welcome, " + this.getFullName() + "!");
-                    } else {
-                        System.out.println("Invalid username or password. Please try again.");
+                    try {
+                        System.out.print("Enter Username: ");
+                        String newUsername = input.nextLine().trim();
+                        if (newUsername.isEmpty()) {
+                            System.out.println("Username cannot be empty.");
+                            break;
+                        }
+
+                        // dupes checker
+                        boolean duplicate = false;
+                        for (User u : users) {
+                            if (u.getUsername().equalsIgnoreCase(newUsername)) {
+                                duplicate = true;
+                                break;
+                            }
+                        }
+
+                        if (duplicate) {
+                            System.out.println("This account already exists! Please use a different username.");
+                            break;
+                        }
+
+                        System.out.print("Enter Password: ");
+                        String newPassword = input.nextLine().trim();
+                        System.out.print("Enter First Name: ");
+                        String fName = input.nextLine().trim();
+                        System.out.print("Enter Last Name: ");
+                        String lName = input.nextLine().trim();
+                        System.out.print("Enter Contact Number: ");
+                        String contact = input.nextLine().trim();
+
+                        // new user
+                        User newUser = new User(contact, fName, lName, newPassword, UUID.randomUUID().toString(),
+                                newUsername, Role.TENANT) {};
+
+                        users.add(newUser);
+                        System.out.println("Account created successfully for " + newUser.getFullName() + "!");
+
+                    } catch (Exception e) {
+                        System.out.println("Error creating account: " + e.getMessage());
                     }
                     break;
 
-                case 2:
-                    if (this.username == null) {
+                case 2: // log in
+                    if (currentUser != null) {
+                        System.out.println("Already logged in as " + currentUser.getFullName() + ".");
+                        break;
+                    }
+
+                    System.out.print("Enter Username: ");
+                    String usernameInput = input.nextLine().trim();
+                    System.out.print("Enter Password: ");
+                    String passwordInput = input.nextLine().trim();
+
+                    boolean found = false;
+                    for (User u : users) {
+                        if (u.verifyLogin(usernameInput, passwordInput)) {
+                            currentUser = u;
+                            System.out.println("Login successful! Welcome, " + u.getFullName() + "!");
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        System.out.println("Invalid username or password.");
+                    }
+                    break;
+
+                case 3: // log out
+                    if (currentUser == null) {
                         System.out.println("No user is currently logged in.");
                     } else {
-                        logout();
+                        logout(currentUser);
+                        currentUser = null;
                     }
                     break;
 
+                case 4: // exit
+                    System.out.println("Exiting the application... Goodbye!");
+                    input.close();
+                    return;
+
                 default:
-                    System.out.print("Invalid input. Please enter a number between 1 and 3.");
+                    System.out.println("Invalid input! Please enter a number between 1-4.");
                     break;
             }
         }
     }
-
-    public boolean verifyLogin(String username, String password) {
-        System.out.println("Verifying credentials for user: " + username + "...");
-        System.out.println("Welcome, " + this.firstName + " " + this.lastName + "! " + " (" + username + ") ");
-        return this.username.equals(username) && this.password.equals(password);
-    }
-
-    public void logout() {
-        System.out.println("User " + this.username + " has logged out.");
-    }
+}
 
     // public abstract void displayProfile() {}
-
-}
