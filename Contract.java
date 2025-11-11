@@ -91,6 +91,8 @@ public class Contract {
     public void activate() {
         if (contractStatus == ContractStatus.Active) {
             System.out.println("Contract is already active!");
+        } else if (contractStatus == ContractStatus.Terminated) {
+            System.out.println("Cannot activate a Terminated contract.");
         } else {
             contractStatus = ContractStatus.Active;
             System.out.println("Contract " + this.getContractID() + " has been ACTIVATED.");
