@@ -94,13 +94,22 @@ public boolean verifyLogin(String username, String password) {
         return this.username.equals(username) && this.password.equals(password);
     }
 
-    public void logout(User currentUser) {
+public void logout(User currentUser) {
         System.out.println("User " + currentUser.getFullName() + " has logged out.");
     }
 
-    public void displayLogInMenu() {
-        Scanner input = new Scanner(System.in);
-        User currentUser = null;
+public void displayProfile(User currentUser) {
+    System.out.println("User Profile:");
+    System.out.println("User ID: " + currentUser.getUserID());
+    System.out.println("Username: " + currentUser.getUsername());
+    System.out.println("Name: " + currentUser.getFullName());
+    System.out.println("Contact Number: " + currentUser.getContactNumber());
+    System.out.println("Role: " + currentUser.getRole());
+}
+
+public void displayLogInMenu() {
+    Scanner input = new Scanner(System.in);
+    User currentUser = null;
 
         while (true) {
             System.out.println("\n================== WELCOME to ROOMEASE! ==================");
@@ -108,13 +117,14 @@ public boolean verifyLogin(String username, String password) {
             System.out.println("[2] Log In");
             System.out.println("[3] Log Out");
             System.out.println("[4] Exit");
-            System.out.print("Please select an option (1-4): ");
+            System.out.println("[5] Display Profile");
+            System.out.print("Please select an option (1-5): ");
 
             int choice;
             try {
                 choice = Integer.parseInt(input.nextLine().trim());
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input! Please enter a number between 1-4.");
+                System.out.println("Invalid input! Please enter a number between 1-5.");
                 continue;
             }
 
@@ -207,12 +217,18 @@ public boolean verifyLogin(String username, String password) {
                     input.close();
                     return;
 
+                case 5: // display profile
+                    if (currentUser == null) {
+                        System.out.println("No user is currently logged in.");
+                    } else {
+                        displayProfile(currentUser);
+                    }
+                    break;
+
                 default:
-                    System.out.println("Invalid input! Please enter a number between 1-4.");
+                    System.out.println("Invalid input! Please enter a number between 1-5.");
                     break;
             }
         }
     }
 }
-
-    // public abstract void displayProfile() {}
