@@ -1,6 +1,6 @@
 public enum MaintenanceRequestStatus {
     Pending,
-    In Progress,
+    In_Progress,
     Resolved
     
 }
