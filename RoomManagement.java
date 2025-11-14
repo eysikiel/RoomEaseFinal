@@ -1,9 +1,11 @@
+
 import java.util.Scanner;
 import java.util.InputMismatchException;
 import java.util.LinkedList;
 import java.util.List;
 
 public class RoomManagement {
+
     private Scanner input = new Scanner(System.in);
 
     private List<Room> roomList = new LinkedList<>();
@@ -54,10 +56,11 @@ public class RoomManagement {
     public void handleLandlordChoice(int choice) {
         switch (choice) {
             case 1:
-                
-            // roomManagement.displaySubmenu();
+                viewRooms();
+                break;
+
             case 2:
-                System.out.println(addRoom());
+                addRoom();
                 break;
             case 3:
                 System.out.println("Opening Applications and Reservations...");
@@ -82,13 +85,26 @@ public class RoomManagement {
 
     }
 
-
     public void viewRooms() {
 
+        if (roomList.isEmpty()) {
+            System.out.println("No rooms available.");
+        } else {
+            System.out.println("───────────────────────────────────────────────");
+            System.out.println("                  View Rooms                   ");
+            System.out.println("───────────────────────────────────────────────");
+            for (Room room : roomList) {
+                System.out.println("Room Number: " + room.getRoomNumber());
+                System.out.println("Type       : " + (room.getType() != null ? room.getType() : "N/A"));
+                System.out.println("Price      : " + room.getPrice());
+                System.out.println("Capacity   : " + room.getCapacity());
+                System.out.println("Status     : " + (room.getStatus() != null ? room.getStatus() : "VACANT"));
+                System.out.println("───────────────────────────────────────────────");
+            }
+        }
     }
-    
-    public void addRoom() {
-        int roomNumber;
+
+    public String addRoom() {
         System.out.println("───────────────────────────────────────────────");
         System.out.println("                  Add New Room                 ");
         System.out.println("───────────────────────────────────────────────");
@@ -105,18 +121,18 @@ public class RoomManagement {
         RoomType roomType;
 
         switch (choice) {
-            case 1: 
-                roomType = RoomType.
+            case 1:
+                roomType = RoomType.Single;
                 break;
-            case 2: 
-                roomType = RoomType.DOUBLE; 
+            case 2:
+                roomType = RoomType.Double;
                 break;
-            case 3: 
-                roomType = RoomType.SHARED; 
+            case 3:
+                roomType = RoomType.Single;
                 break;
             default:
                 System.out.println("Invalid choice! Defaulting to SINGLE.");
-                roomType = RoomType.SINGLE;
+                roomType = RoomType.Single;
         }
 
         System.out.print("Enter room price: ");
@@ -125,16 +141,139 @@ public class RoomManagement {
         System.out.print("Enter capacity: ");
         int capacity = input.nextInt();
 
+        return "Room added successfully!";
 
+    }
+
+    public void editRoom() {
+
+        if (roomList.isEmpty()) {
+            System.out.println("No rooms available to edit.");
+            return;
+        } else {
+
+            System.out.println("───────────────────────────────────────────────");
+            System.out.println("                  Edit Room                    ");
+            System.out.println("───────────────────────────────────────────────");
+
+            System.out.print("Enter Room Number to edit: ");
+            String roomNumberToEdit = input.nextLine();
+
+            Room roomToEdit = null;
+            for (Room room : roomList) {
+                if (room.getRoomNumber().equals(roomNumberToEdit)) {
+                    roomToEdit = room;
+                    break;
+                }
+            }
+
+            if (roomToEdit == null) {
+                System.out.println("Room not found!");
+                return;
+            }
+
+            System.out.println("Select field to edit:");
+            System.out.println("1. Room Number");
+            System.out.println("2. Room Type");
+            System.out.println("3. Price");
+            System.out.println("4. Capacity");
+            System.out.println("5. Status");
+            System.out.println("6. Cancel");
+            System.out.print("Enter choice (1-6): ");
+            int editChoice = input.nextInt();
+            input.nextLine();
+
+            switch (editChoice) {
+                case 1:
+                    System.out.print("Enter new Room Number: ");
+                    String newNumber = input.nextLine();
+                    roomToEdit.setRoomNumber(newNumber);
+                    break;
+                case 2:
+                    System.out.println("Select Room Type:");
+                    System.out.println("1. Single");
+                    System.out.println("2. Double");
+                    System.out.println("3. Shared");
+                    int typeChoice = input.nextInt();
+                    input.nextLine();
+
+                    switch (typeChoice) {
+                        case 1:
+roomToEdit.setType(RoomType.Single); 
+                            break;  2
+                            :  roomToE
+                            dit.setType(RoomType.Double); 
+                            reak;
+                        case 3:
+roomToEdit.setType(RoomType.Shared); 
+                            break; ul
+                            t: System.out.pr
+                            intln("Invalid choice! Type not changed."); break;
+            }
+
+                        k;
+                            
+                            ut.print("Enter new Price: ");
+                        le newPr
+                            ce = input.nextDouble();
+                            
+                    input.nextLine();
+roomToEdit.setPrice(newPrice);
+                    break;
+                case 4:
+                    System.out.print("Enter new Capacity: ");
+                    int newCapacity = input.nextInt();
+                    input.nextLine();
+                    roomToEdit.setCapacity(newCapacity);
+                    break;
+                case 5:
+                    System.out.println("Select Status:");
+                    System.out.println("1. VACANT");
+                    System.out.println("2. OCCUPIED");
+                    System.out.println("3. MAINTENANCE");
+                    int statusChoice = input.nextInt();
+                        input.nextLine();
+                          
+                    
+        case 6:
+                    
+                    System.out.println("Exiting edit room...");
+                    displa
+                    yMenu();
+                    break;
+                    
+                    
+                    switch (stat  1
+                    : 
+                    roomToEdit.setStatus("Vacant"); 
+                    break;
+                ase 2: 
+                                       roomToEdit.setStatus("Occupied"); 
+                                 break; 
+                      3
+                    : 
+                    
+                    roomToEdit.setStatus("Maintenance"); 
+                            break;
+                default: System.out.println("Invalid choice! Status not changed."); break;
+                    break;
+                        
+                            ut.println("Invalid choice! No hanges made.");
+                            
+                        
+                            
+                            
+                        rintln(Room updated successfully!");
+                            
+                            
+                        
+                            
+                            
+                    oid deleteRoom(String roomID) {}
+                    
+                
+                    
+                    
             
-    }
+                
     
-    public void editRoom(String roomID, Room updatedRoom) {
-
-    }
-    public void deleteRoom(String roomID) {}
-
-    
-}
-    
-
