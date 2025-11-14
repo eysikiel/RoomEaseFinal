@@ -1,3 +1,4 @@
+
 import java.util.Scanner;
 import java.util.InputMismatchException;
 import java.util.LinkedList;
@@ -21,7 +22,6 @@ public class RoomManagement {
         this.roomList = roomList;
     }
 
-
     public void displayMenu() {
         do {
             System.out.println("───────────────────────────────────────────────");
@@ -37,7 +37,7 @@ public class RoomManagement {
 
             try {
                 choice = input.nextInt();
-                input.nextLine(); 
+                input.nextLine();
 
                 if (choice < 1 || choice > 5) {
                     System.out.println("Invalid input. Please enter a number between 1 and 5.");
@@ -123,16 +123,30 @@ public class RoomManagement {
 
         System.out.print("Enter room price: ");
         double price = input.nextDouble();
-        input.nextLine(); 
+        input.nextLine();
 
         System.out.print("Enter capacity: ");
         int capacity = input.nextInt();
-        input.nextLine(); 
+        input.nextLine();
 
-        
+        System.out.println("Select Pricing Type:");
+        System.out.println("1. Per Head");
+        System.out.println("2. Per Room");
+        int pricingChoice = input.nextInt();
+        input.nextLine();
+
+        RoomPricingType pricingType;
+        if (pricingChoice == 1) {
+            pricingType = RoomPricingType.per_head;
+        } else if (pricingChoice == 2) {
+            pricingType = RoomPricingType.full;
+        } else {
+            System.out.println("Invalid choice! Defaulting to Per Head.");
+            pricingType = RoomPricingType.per_head;
+        }
         String roomID = "R" + (roomList.size() + 1);
-        Room newRoom = new Room(capacity, price, RoomPricingType.PER_HEAD,
-                roomID, roomNumber, RoomStatus.Vacant, roomType);
+
+        Room newRoom = new Room(capacity, price, pricingType, roomID, roomNumber, RoomStatus.Vacant, roomType);
 
         roomList.add(newRoom);
         System.out.println("Room added successfully!");
