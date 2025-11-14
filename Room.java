@@ -1,5 +1,4 @@
 
-import java.util.Scanner;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,16 +13,16 @@ public class Room {
     private RoomStatus status;
     private RoomPricingType pricingType;
 
-    public Room(String roomID, String roomNumber, RoomType type, double price, int capacity, List<String> amenities,
-            RoomStatus status, RoomPricingType pricingType) {
+    public Room(int capacity, double price, RoomPricingType pricingType,
+            String roomID, String roomNumber, RoomStatus status, RoomType type) {
+
+        this.capacity = capacity;
+        this.price = price;
+        this.pricingType = pricingType;
         this.roomID = roomID;
         this.roomNumber = roomNumber;
-        this.type = type;
-        this.price = price;
-        this.capacity = capacity;
-        this.amenities = amenities;
         this.status = status;
-        this.pricingType = pricingType;
+        this.type = type;
     }
 
     public void setRoomID(String roomID) {
@@ -54,7 +53,7 @@ public class Room {
         this.status = status;
     }
 
-    public void setPricingType(PricingType pricingType) {
+    public void setPricingType(RoomPricingType pricingType) {
         this.pricingType = pricingType;
     }
 
@@ -91,9 +90,22 @@ public class Room {
     }
 
     public void displayInfo() {
+
     }
 
     public void updateInfo(Room updatedRoom) {
-    }
+        if (updatedRoom == null) {
+            System.out.println("No updated information provided.");
+            return;
+        }
 
+        this.roomID = updatedRoom.getRoomID();
+        this.roomNumber = updatedRoom.getRoomNumber();
+        this.type = updatedRoom.getType();
+        this.price = updatedRoom.getPrice();
+        this.capacity = updatedRoom.getCapacity();
+        this.amenities = new LinkedList<>(updatedRoom.getAmenities());
+        this.status = updatedRoom.getStatus();
+        this.pricingType = updatedRoom.getPricingType();
+    }
 }
