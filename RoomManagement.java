@@ -7,9 +7,8 @@ import java.util.List;
 public class RoomManagement {
 
     private Scanner input = new Scanner(System.in);
-
     private List<Room> roomList = new LinkedList<>();
-    int choice;
+    private int choice;
 
     public RoomManagement(List<Room> roomList) {
         this.roomList = roomList;
@@ -23,6 +22,7 @@ public class RoomManagement {
         this.roomList = roomList;
     }
 
+
     public void displayMenu() {
         do {
             System.out.println("───────────────────────────────────────────────");
@@ -30,19 +30,21 @@ public class RoomManagement {
             System.out.println("───────────────────────────────────────────────");
             System.out.println("[1] View Rooms");
             System.out.println("[2] Add Room");
-            System.out.println("[3] Update Room Information");
-            System.out.println("[4] Remove Room");
-            System.out.println("[5] Back to Landlord Main Menu");
+            System.out.println("[3] Edit Room");
+            System.out.println("[4] Delete Room");
+            System.out.println("[5] Exit");
             System.out.println("───────────────────────────────────────────────");
             System.out.print("Enter your choice: ");
 
             try {
                 choice = input.nextInt();
+                input.nextLine(); 
 
                 if (choice < 1 || choice > 5) {
                     System.out.println("Invalid input. Please enter a number between 1 and 5.");
                     continue;
                 }
+
                 handleLandlordChoice(choice);
 
             } catch (InputMismatchException e) {
@@ -58,35 +60,25 @@ public class RoomManagement {
             case 1:
                 viewRooms();
                 break;
-
             case 2:
                 addRoom();
                 break;
             case 3:
-                System.out.println("Opening Applications and Reservations...");
+                editRoom();
+                break;
             case 4:
-                System.out.println("Opening Viewing Requests...");
+                deleteRoomMenu();
+                break;
             case 5:
-                System.out.println("Opening Maintenance Requests...");
-            case 6:
-                System.out.println("Opening Contract Management...");
-            case 7:
-                System.out.println("Opening Billing and Payments...");
-            case 8:
-                System.out.println("Opening Reports and Analytics...");
-            case 9:
-                System.out.println("Opening System Settings...");
-            case 10:
-                System.out.println("Logging out... Goodbye!");
+                System.out.println("Exiting Room Management...");
+                break;
             default:
                 System.out.println("Invalid choice. Please try again.");
-
+                break;
         }
-
     }
 
     public void viewRooms() {
-
         if (roomList.isEmpty()) {
             System.out.println("No rooms available.");
         } else {
@@ -94,20 +86,16 @@ public class RoomManagement {
             System.out.println("                  View Rooms                   ");
             System.out.println("───────────────────────────────────────────────");
             for (Room room : roomList) {
-                System.out.println("Room Number: " + room.getRoomNumber());
-                System.out.println("Type       : " + (room.getType() != null ? room.getType() : "N/A"));
-                System.out.println("Price      : " + room.getPrice());
-                System.out.println("Capacity   : " + room.getCapacity());
-                System.out.println("Status     : " + (room.getStatus() != null ? room.getStatus() : "VACANT"));
-                System.out.println("───────────────────────────────────────────────");
+                room.displayInfo();
             }
         }
     }
 
-    public String addRoom() {
+    public void addRoom() {
         System.out.println("───────────────────────────────────────────────");
         System.out.println("                  Add New Room                 ");
         System.out.println("───────────────────────────────────────────────");
+
         System.out.print("Enter room number: ");
         String roomNumber = input.nextLine();
 
@@ -115,12 +103,11 @@ public class RoomManagement {
         System.out.println("1. Single");
         System.out.println("2. Double");
         System.out.println("3. Shared");
-        System.out.print("Enter choice (1-3): ");
-        int choice = input.nextInt();
+        int typeChoice = input.nextInt();
+        input.nextLine(); // consume newline
 
         RoomType roomType;
-
-        switch (choice) {
+        switch (typeChoice) {
             case 1:
                 roomType = RoomType.Single;
                 break;
@@ -128,33 +115,35 @@ public class RoomManagement {
                 roomType = RoomType.Double;
                 break;
             case 3:
-                roomType = RoomType.Single;
+                roomType = RoomType.Shared;
                 break;
             default:
-                System.out.println("Invalid choice! Defaulting to SINGLE.");
+                System.out.println("Invalid choice! Defaulting to Single.");
                 roomType = RoomType.Single;
         }
 
         System.out.print("Enter room price: ");
         double price = input.nextDouble();
+        input.nextLine(); 
 
         System.out.print("Enter capacity: ");
         int capacity = input.nextInt();
+        input.nextLine(); 
 
-        return "Room added successfully!";
+        
+        String roomID = "R" + (roomList.size() + 1);
+        Room newRoom = new Room(capacity, price, RoomPricingType.PER_HEAD,
+                roomID, roomNumber, RoomStatus.Vacant, roomType);
 
+        roomList.add(newRoom);
+        System.out.println("Room added successfully!");
     }
 
     public void editRoom() {
-
         if (roomList.isEmpty()) {
             System.out.println("No rooms available to edit.");
             return;
         }
-
-        System.out.println("───────────────────────────────────────────────");
-        System.out.println("                  Edit Room                    ");
-        System.out.println("───────────────────────────────────────────────");
 
         System.out.print("Enter Room Number to edit: ");
         String roomNumberToEdit = input.nextLine();
@@ -184,7 +173,6 @@ public class RoomManagement {
         input.nextLine();
 
         switch (editChoice) {
-
             case 1:
                 System.out.print("Enter new Room Number: ");
                 String newNumber = input.nextLine();
@@ -214,7 +202,6 @@ public class RoomManagement {
                         System.out.println("Invalid type! No changes made.");
                         return;
                 }
-
                 System.out.println("Room type updated successfully!");
                 break;
 
@@ -236,10 +223,9 @@ public class RoomManagement {
 
             case 5:
                 System.out.println("Select Status:");
-                System.out.println("1. VACANT");
-                System.out.println("2. OCCUPIED");
-                System.out.println("3. MAINTENANCE");
-
+                System.out.println("1. Vacant");
+                System.out.println("2. Occupied");
+                System.out.println("3. Under Maintenance");
                 int statusChoice = input.nextInt();
                 input.nextLine();
 
@@ -257,7 +243,6 @@ public class RoomManagement {
                         System.out.println("Invalid status! No changes made.");
                         return;
                 }
-
                 System.out.println("Status updated successfully!");
                 break;
 
@@ -273,11 +258,14 @@ public class RoomManagement {
         System.out.println("Room updated successfully!");
     }
 
-    public void deleteRoom(String roomID) {
+    public void deleteRoomMenu() {
         if (roomList.isEmpty()) {
             System.out.println("No rooms available to delete.");
             return;
         }
+
+        System.out.print("Enter Room ID to delete: ");
+        String roomID = input.nextLine();
 
         for (Room room : roomList) {
             if (room.getRoomID().equals(roomID)) {
