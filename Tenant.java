@@ -142,11 +142,11 @@ public class Tenant extends User {
     public void viewRoom(Room room) {
         System.out.println("===== ROOM DETAILS =====");
         System.out.println("Room ID: " + room.getRoomID());
-        System.out.println("Type: " + room.getType());
+        System.out.println("Type: " + room.getRoomType());
         System.out.println("Price: " + room.getPrice());
         System.out.println("Capacity: " + room.getCapacity());
         System.out.println("Amenities: " + room.getAmenities());
-        System.out.println("Status: " + room.getStatus());
+        System.out.println("Status: " + room.getRoomStatus());
         System.out.println("=========================");
     }
 
@@ -157,7 +157,7 @@ public class Tenant extends User {
             System.out.println("Start Date: " + contract.getStartDate());
             System.out.println("End Date: " + contract.getEndDate());
             System.out.println("Monthly Rent: " + contract.getMonthlyRent());
-            System.out.println("Status: " + contract.getStatus());
+            System.out.println("Status: " + contract.getContractStatus());
             System.out.println("============================");
         } else {
             System.out.println("No active contract found.");

@@ -1,4 +1,5 @@
 
+import java.util.Scanner;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -90,7 +91,29 @@ public class Room {
     }
 
     public void displayInfo() {
+        System.out.println("───────────────────────────────────────────────");
+        System.out.println("Room ID       : " + roomID);
+        System.out.println("Room Number   : " + roomNumber);
+        System.out.println("Room Type     : " + (type != null ? type : "N/A"));
+        System.out.println("Price         : " + price);
+        System.out.println("Capacity      : " + capacity);
 
+        if (amenities.isEmpty()) {
+            System.out.println("Amenities     : None");
+        } else {
+            System.out.print("Amenities     : ");
+            for (int i = 0; i < amenities.size(); i++) {
+                System.out.print(amenities.get(i));
+                if (i < amenities.size() - 1) {
+                    System.out.print(", ");
+                }
+            }
+            System.out.println();
+        }
+
+        System.out.println("Status        : " + (status != null ? status : "Vacant"));
+        System.out.println("Pricing Type  : " + (pricingType != null ? pricingType : "Per_Head"));
+        System.out.println("───────────────────────────────────────────────");
     }
 
     public void updateInfo(Room updatedRoom) {
