@@ -1,7 +1,5 @@
 
-import java.util.Scanner;
 import java.util.LinkedList;
-import java.util.List;
 
 public class Room {
 
@@ -10,7 +8,7 @@ public class Room {
     private RoomType type;
     private double price;
     private int capacity;
-    private List<String> amenities = new LinkedList<>();
+    private LinkedList<String> amenities = new LinkedList<>();
     private RoomStatus status;
     private RoomPricingType pricingType;
 
@@ -39,14 +37,18 @@ public class Room {
     }
 
     public void setPrice(double price) {
-        this.price = price;
+        if (price >= 0) {
+            this.price = price;
+        } else {
+            System.out.println("Invalid price. Price cannot be negative.");
+        }
     }
 
     public void setCapacity(int capacity) {
         this.capacity = capacity;
     }
 
-    public void setAmenities(List<String> amenities) {
+    public void setAmenities(LinkedList<String> amenities) {
         this.amenities = amenities;
     }
 
@@ -78,7 +80,7 @@ public class Room {
         return capacity;
     }
 
-    public List<String> getAmenities() {
+    public LinkedList<String> getAmenities() {
         return amenities;
     }
 
