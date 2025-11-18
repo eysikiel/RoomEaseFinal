@@ -1,0 +1,10 @@
+public enum TypesOfBill {
+    ELECTRICITY,
+    WATER,
+    LATE_FEE,
+    WIFI,
+    PARKING_FEE,
+    SECURITY_DEPOSIT,
+    ADVANCE_PAYMENT,
+    MONTHLY_PAYMENT
+}

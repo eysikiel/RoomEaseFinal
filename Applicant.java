@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -7,185 +6,211 @@ public class Applicant {
     private String applicantID;
     private String preferredRoomID;
     private String applicationStatus;
-    private List<Viewing> scheduledViewings;
-    private Scanner input;
-    private int viewingCounter = 1;
-    private int choice;
-
-    private class Viewing {
-        String requestID;
-        String roomID;
-        String date;
-        String time;
-
-        Viewing(String roomID, String date, String time) {
-            this.requestID = "VR" + viewingCounter++;
-            this.roomID = roomID;
-            this.date = date;
-            this.time = time;
-        }
-
-        @Override
-        public String toString() {
-            return "RequestID: " + requestID + ", Room: " + roomID + ", Date: " + date + ", Time: " + time;
-        }
-    }
+    private List<ViewingRequest> viewingRequests;
 
     public Applicant(String applicantID) {
         this.applicantID = applicantID;
-        this.preferredRoomID = null;
-        this.applicationStatus = "Not Applied";
-        this.scheduledViewings = new ArrayList<>();
-        this.input = new Scanner(System.in);
+        this.preferredRoomID = "";
+        this.applicationStatus = "None";
+        this.viewingRequests = new ArrayList<>();
     }
 
-    public void displayApplicantMenu() {
-        do {
-            System.out.println("───────────────────────────────────────────────");
-            System.out.println("               APPLICANT MAIN MENU             ");
-            System.out.println("───────────────────────────────────────────────");
-            System.out.println("[1] Apply for a Room");
-            System.out.println("[2] Check Application Status");
-            System.out.println("[3] Schedule a Viewing");
-            System.out.println("[4] Cancel a Viewing");
-            System.out.println("[5] List Scheduled Viewings");
-            System.out.println("[6] Contact Admin");
-            System.out.println("[7] Sort Available Rooms");
-            System.out.println("[0] Exit");
-            System.out.println("───────────────────────────────────────────────");
-            System.out.print("Enter your choice: ");
-
-            try {
-                choice = input.nextInt();
-                input.nextLine();
-
-                if (choice < 0 || choice > 7) {
-                    System.out.println("Invalid input. Please enter a number between 0 and 7.\n");
-                    continue;
-                }
-                handleApplicantChoice(choice);
-
-            } catch (InputMismatchException e) {
-                System.out.println("Invalid input. Please enter a number only.");
-                input.nextLine();
-            }
-
-        } while (choice != 0);
+    public String getApplicantID() {
+        return applicantID;
     }
 
-    private void handleApplicantChoice(int choice) {
-        switch (choice) {
-            case 1:
-                System.out.print("Enter Room ID to apply (or 'b' to go back): ");
-                String roomID = input.nextLine();
-                if (!roomID.equalsIgnoreCase("b")) applyForRoom(roomID);
-                break;
+    public void setApplicantID(String applicantID) {
+        this.applicantID = applicantID;
+    }
 
-            case 2:
-                checkApplicationStatus();
-                break;
+    public String getPreferredRoomID() {
+        return preferredRoomID;
+    }
 
-            case 3:
-                System.out.print("Enter Room ID for viewing (or 'b' to go back): ");
-                String vRoom = input.nextLine();
-                if (vRoom.equalsIgnoreCase("b")) break;
+    public void setPreferredRoomID(String preferredRoomID) {
+        this.preferredRoomID = preferredRoomID;
+    }
 
-                System.out.print("Enter Date (YYYY-MM-DD): ");
-                String date = input.nextLine();
-                if (date.equalsIgnoreCase("b")) break;
+    public String getApplicationStatus() {
+        return applicationStatus;
+    }
 
-                System.out.print("Enter Time (HH:MM): ");
-                String time = input.nextLine();
-                if (time.equalsIgnoreCase("b")) break;
+    public void setApplicationStatus(String applicationStatus) {
+        this.applicationStatus = applicationStatus;
+    }
 
-                scheduleViewing(vRoom, date, time);
-                break;
+    public List<ViewingRequest> getViewingRequests() {
+        return viewingRequests;
+    }
 
-            case 4:
-                System.out.print("Enter Viewing Request ID to cancel (or 'b'):  ");
-                String reqID = input.nextLine();
-                if (!reqID.equalsIgnoreCase("b")) cancelViewing(reqID);
-                break;
+    public void setViewingRequests(List<ViewingRequest> viewingRequests) {
+        this.viewingRequests = viewingRequests;
+    }
 
-            case 5:
-                listViewings();
-                break;
-
-            case 6:
-                System.out.print("Enter message to admin (or 'b'): ");
-                String msg = input.nextLine();
-                if (!msg.equalsIgnoreCase("b")) contactAdmin(msg);
-                break;
-
-            case 7:
-                System.out.print("Enter sort criteria (price/type/etc.) or 'b': ");
-                String criteria = input.nextLine();
-                if (criteria.equalsIgnoreCase("b")) break;
-
-                System.out.print("Enter order (asc/desc) or 'b': ");
-                String order = input.nextLine();
-                if (order.equalsIgnoreCase("b")) break;
-
-                sortAvailableRooms(criteria, order);
-                break;
-
-            case 0:
-                System.out.println("Exiting Applicant Menu... Goodbye!");
-                break;
-
-            default:
-                System.out.println("Invalid choice. Please try again.");
+    public void applyForRoom(String roomID) {
+        if (roomID == null || roomID.isEmpty()) {
+            System.out.println("Invalid room ID.");
+            return;
         }
-    }
-
-    private void applyForRoom(String roomID) {
         this.preferredRoomID = roomID;
-        this.applicationStatus = "Application Submitted";
-        System.out.println("Applied for Room " + roomID);
+        this.applicationStatus = "Pending";
+        System.out.println("Application submitted for room " + roomID + ". Status: Pending");
     }
 
-    private void checkApplicationStatus() {
-        System.out.println("Application Status: " + applicationStatus);
+    public void checkApplicationStatus() {
+        System.out.println("Current application status: " + this.applicationStatus);
     }
 
-    private void scheduleViewing(String roomID, String date, String time) {
-        Viewing v = new Viewing(roomID, date, time);
-        scheduledViewings.add(v);
-        System.out.println("Viewing scheduled: " + v);
+    public void scheduleViewing(ViewingRequest request) {
+        if (request == null) {
+            System.out.println("Invalid viewing request.");
+            return;
+        }
+        viewingRequests.add(request);
+        System.out.println("Viewing request scheduled: " + request.getRequestID());
     }
 
-    private void cancelViewing(String requestID) {
-        Viewing toRemove = null;
-        for (Viewing v : scheduledViewings) {
-            if (v.requestID.equals(requestID)) {
-                toRemove = v;
+    public void cancelViewing(String requestID) {
+        ViewingRequest toRemove = null;
+
+        for (ViewingRequest vr : viewingRequests) {
+            if (vr.getRequestID().equals(requestID)) {
+                toRemove = vr;
                 break;
             }
         }
+
         if (toRemove != null) {
-            scheduledViewings.remove(toRemove);
-            System.out.println("Viewing canceled: " + requestID);
+            viewingRequests.remove(toRemove);
+            System.out.println("Viewing request " + requestID + " has been cancelled.");
         } else {
-            System.out.println("No viewing found with ID: " + requestID);
+            System.out.println("No viewing request found with ID: " + requestID);
         }
     }
 
-    private void listViewings() {
-        if (scheduledViewings.isEmpty()) {
-            System.out.println("No scheduled viewings.");
-        } else {
-            System.out.println("Scheduled Viewings:");
-            for (Viewing v : scheduledViewings) {
-                System.out.println(v);
-            }
+    public void contactAdmin(String message) {
+        if (message == null || message.isEmpty()) {
+            System.out.println("Message cannot be empty.");
+            return;
         }
-    }
-
-    private void contactAdmin(String message) {
         System.out.println("Message sent to admin: " + message);
     }
 
-    private void sortAvailableRooms(String criteria, String order) {
-        System.out.println("Sorting rooms by " + criteria + " in " + order + " order");
+    public void sortAvailableRooms(String criteria, String order) {
+        System.out.println("Sorting rooms by " + criteria + " in " + order + " order...");
+    }
+
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        System.out.print("Enter your Applicant ID: ");
+        String applicantID = input.nextLine();
+
+        Applicant applicant = new Applicant(applicantID);
+        int choice;
+
+        do {
+            System.out.println("\n===== APPLICANT MENU =====");
+            System.out.println("1. View Available Rooms");
+            System.out.println("2. Apply / Reserve Room");
+            System.out.println("3. Check Application Status");
+            System.out.println("4. Schedule Room Viewing");
+            System.out.println("5. Cancel / Reschedule Viewing");
+            System.out.println("6. Contact Admin");
+            System.out.println("7. FAQ / Dorm Rules");
+            System.out.println("0. Exit");
+            System.out.print("Enter choice: ");
+            choice = input.nextInt();
+            input.nextLine();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter filter criteria (price/type/amenities/availability): ");
+                    String criteria = input.nextLine();
+                    System.out.print("Enter sorting order (asc/desc): ");
+                    String order = input.nextLine();
+                    applicant.sortAvailableRooms(criteria, order);
+                    break;
+
+                case 2:
+                    System.out.print("Enter Room ID to apply: ");
+                    String roomID = input.nextLine();
+                    applicant.applyForRoom(roomID);
+                    break;
+
+                case 3:
+                    applicant.checkApplicationStatus();
+                    break;
+
+                case 4:
+                    System.out.print("Enter Viewing Request ID: ");
+                    String requestID = input.nextLine();
+                    System.out.print("Enter Room ID: ");
+                    String rID = input.nextLine();
+                    System.out.print("Enter Viewing Date (YYYY-MM-DD): ");
+                    String date = input.nextLine();
+                    System.out.print("Enter Viewing Time (HH:MM): ");
+                    String time = input.nextLine();
+                    ViewingRequest vr = new ViewingRequest();
+                    applicant.scheduleViewing(vr);
+                    break;
+
+                case 5:
+                    System.out.print("Enter Viewing Request ID to cancel/reschedule: ");
+                    String cancelID = input.nextLine();
+                    System.out.println("1. Cancel");
+                    System.out.println("2. Reschedule");
+                    System.out.print("Choose option: ");
+                    int opt = input.nextInt();
+                    input.nextLine();
+
+                    if (opt == 1) {
+                        applicant.cancelViewing(cancelID);
+                    } else if (opt == 2) {
+                        System.out.print("Enter new Date (YYYY-MM-DD): ");
+                        String newDate = input.nextLine();
+                        System.out.print("Enter new Time (HH:MM): ");
+                        String newTime = input.nextLine();
+                        boolean found = false;
+
+                        for (ViewingRequest vreq : applicant.getViewingRequests()) {
+                            if (vreq.getRequestID().equals(cancelID)) {
+                                vreq.setDate(newDate);
+                                vreq.se ntTime(newTime);
+                                System.out.println("Viewing request rescheduled!");
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (!found) System.out.println("Request ID not found.");
+                    } else {
+                        System.out.println("Invalid option.");
+                    }
+                    break;
+
+                case 6:
+                    System.out.print("Enter message to admin: ");
+                    String msg = input.nextLine();
+                    applicant.contactAdmin(msg);
+                    break;
+
+                case 7:
+                    System.out.println("1. Curfew: 10:00 PM");
+                    System.out.println("2. No loud noise after 9 PM");
+                    System.out.println("3. Maintain cleanliness");
+                    System.out.println("4. Visitors must register at the lobby");
+                    System.out.println("5. No illegal appliances");
+                    break;
+
+                case 0:
+                    System.out.println("Exiting menu...");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice!");
+            }
+        } while (choice != 0);
+
+        input.close();
     }
 }
