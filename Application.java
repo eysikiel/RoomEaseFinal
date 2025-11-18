@@ -108,7 +108,7 @@ public class Application {
             return false;
         }
 
-        applicationStatus = "rejected";
+        applicationStatus = "rejected!";
         return true;
     }
 
