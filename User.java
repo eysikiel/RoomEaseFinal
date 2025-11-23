@@ -5,7 +5,6 @@ import java.util.UUID;
 // import java.util.function.Function;
 
 public abstract class User {
-
     protected String userID;
     protected String username;
     protected String password;
@@ -86,10 +85,14 @@ public abstract class User {
         return role;
     }
 
+    public static List<User> getUsers() {
+        return users;
+    }
+
     public enum Role {
-        ADMIN,
         LANDLORD,
-        TENANT
+        TENANT,
+        APPLICANT
     }
 
     public boolean verifyLogin(String username, String password) {
@@ -109,6 +112,8 @@ public abstract class User {
         System.out.println("Role: " + currentUser.getRole());
         System.out.println("\n=================================================\n");
     }
+
+    public abstract void displayRoleMenu();
 
     // private static String errorCatching(Scanner input, String prompt,
     // Function<String, String>) { --> just in case the coding is too redundabt cuz
@@ -243,8 +248,8 @@ public abstract class User {
                         }
 
                         // new user creation
-                        User newUser = new User(contact, fName, lName, newPassword, UUID.randomUUID().toString(),
-                                newUsername, Role.TENANT) {
+                        User newUser = new Applicant(contact, fName, lName, newPassword, UUID.randomUUID().toString(),
+                                newUsername, Role.APPLICANT) {
                         };
 
                         users.add(newUser);
@@ -297,7 +302,9 @@ public abstract class User {
                                     System.out.println(
                                             "============================================================\n\n");
                                     found = true;
-                                    loggedIn = true; 
+                                    loggedIn = true;
+
+                                    currentUser.displayRoleMenu();
                                     break;
                                 }
                             }

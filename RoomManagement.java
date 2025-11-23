@@ -1,26 +1,14 @@
-
 import java.util.Scanner;
 import java.util.InputMismatchException;
 import java.util.LinkedList;
-import java.util.List;
+
 
 public class RoomManagement {
 
     private Scanner input = new Scanner(System.in);
-    private List<Room> roomList = new LinkedList<>();
+    private LinkedList<Room> roomList = new LinkedList<>();
     private int choice;
 
-    public RoomManagement(List<Room> roomList) {
-        this.roomList = roomList;
-    }
-
-    public List<Room> getRoomList() {
-        return roomList;
-    }
-
-    public void setRoomList(List<Room> roomList) {
-        this.roomList = roomList;
-    }
 
     public void displayMenu() {
         do {

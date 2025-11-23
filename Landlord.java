@@ -25,10 +25,15 @@ public class Landlord extends User {
         this.landlordID = landlordID;
         this.maintenanceManagement = maintenanceManagement;
         this.reportsAndAnalytics = reportsAndAnalytics;
-        this.roomManagement = roomManagement;
         this.systemSettings = systemSettings;
         this.tenantManagement = tenantManagement;
         this.viewingManagement = viewingManagement;
+    }
+
+    public Landlord(String contactNumber, String firstName, String lastName, String password, String userID, String username, User.Role role) {
+        super(contactNumber, firstName, lastName, password, userID, username, role);
+        this.landlordID = userID;
+        this.roomManagement = new RoomManagement();
     }
 
     public int getChoice() {
@@ -44,7 +49,10 @@ public class Landlord extends User {
     }
 
     public RoomManagement getRoomManagement() {
-        return roomManagement;
+        if (this.roomManagement == null) {
+            this.roomManagement = new RoomManagement();
+        }
+        return this.roomManagement;
     }
 
     public TenantManagement getTenantManagement() {
@@ -154,6 +162,12 @@ public class Landlord extends User {
     @Override
     public void displayProfile() {
     } */
+
+    @Override
+    public void displayRoleMenu() {
+        displayLandlordMenu();
+    }
+
     public void displayLandlordMenu() {
 
         do {
@@ -194,7 +208,8 @@ public class Landlord extends User {
         switch (choice) {
             case 1:
                 System.out.println("Opening Room Management...");
-            // roomManagement.displaySubmenu();
+                getRoomManagement().displayMenu();
+                break;
             case 2:
                 System.out.println("Opening Tenant Management...");
             case 3:
