@@ -1,38 +1,34 @@
 import java.util.Date;
 
-public class ViewingRequest extends Requests{
-    private Applicant applicantID;
-    private Date scheduledDate;
+public class ViewingRequest {
+    private String requestID;
+    private String applicantID;
+    private String roomID;
+    private Date scheduleDate;
 
-    public ViewingRequest(String requestID, Room roomID, RequestStatus requestStatus, Applicant applicantID, Date scheduledDate) {
-        super(requestID, roomID, requestStatus);
+    public ViewingRequest(String requestID, String applicantID, String roomID, Date scheduleDate) {
+        this.requestID = requestID;
         this.applicantID = applicantID;
-        this.scheduledDate = scheduledDate;
+        this.roomID = roomID;
+        this.scheduleDate = scheduleDate;
     }
 
-    public Applicant getApplicantID() {
-        return applicantID;
+    public Object getRequestID() {
     }
 
-    public Date getScheduledDate() {
-        return scheduledDate;
+    public void setDate(String date) {
+        this.date = date;
     }
 
-    public void setApplicantID(Applicant applicantID) {
-        this.applicantID = applicantID;
+    public String getDate() {
+        return date;
     }
 
-    public void setScheduledDate(Date scheduledDate) {
-        this.scheduledDate = scheduledDate;
+    public void setTime(String time) {
+        this.time = time;
     }
 
-    @Override
-    public void displayRequest() {
-        System.out.println("=== Viewing Request ===");
-        System.out.println("Request ID: " + this.getRequestID());
-        System.out.println("Applicant: " + this.getApplicantID().getFullName());
-        System.out.println("Room: " + this.getRoomID().getRoomID());
-        System.out.println("Date Scheduled: " + this.getScheduledDate());
-        System.out.println("Status: " + this.getRequestStatus());
+    public String getTime() {
+        return time;
     }
 }
