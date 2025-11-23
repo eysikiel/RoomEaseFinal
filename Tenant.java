@@ -9,8 +9,9 @@ public class Tenant extends User {
     private double balance;
     private String emergencyContact;
 
-    public Tenant(String userID, String username, String password, String firstName, String lastName, String contactNumber, Role role, String tenantID, String roomID, Contract contract, double balance, String emergencyContact) {
-        super(userID, username, password, firstName, lastName, contactNumber, role);
+public Tenant(String contactNumber, String firstName, String lastName, String password, String userID, String username, Role role,
+            String tenantID, String roomID, Contract contract, double balance, String emergencyContact) {
+        super(contactNumber, firstName, lastName, password, userID, username, role);
         this.tenantID = tenantID;
         this.roomID = roomID;
         this.contract = contract;
