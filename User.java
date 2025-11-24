@@ -121,7 +121,6 @@ public abstract class User {
     // while (true) {
     // System.out.print(prompt);
     // String userInput = input.nextLine().trim();
-
     // try {
     // String error = validator.apply(userInput);
     // if (error != null) {
@@ -134,7 +133,6 @@ public abstract class User {
     // }
     // }
     // }
-
     public void displayLogInMenu() { // i think a back button is needed
         Scanner input = new Scanner(System.in);
         User currentUser = null;
