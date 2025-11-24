@@ -1,15 +1,17 @@
 package Model.Request;
+
 import java.util.Date;
 
 import Enums.RequestStatus;
 import Model.Property.Room;
 import Model.User.Applicant;
 
-public class ViewingRequest extends Requests{
+public class ViewingRequest extends Requests {
     private Applicant applicantID;
     private Date scheduledDate;
 
-    public ViewingRequest(String requestID, Room roomID, RequestStatus requestStatus, Applicant applicantID, Date scheduledDate) {
+    public ViewingRequest(String requestID, Room roomID, RequestStatus requestStatus, Applicant applicantID,
+            Date scheduledDate) {
         super(requestID, roomID, requestStatus);
         this.applicantID = applicantID;
         this.scheduledDate = scheduledDate;

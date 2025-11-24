@@ -1,6 +1,5 @@
-package src;
-import src.Model.User.Landlord;
-import src.Model.User.User;
+import Model.User.Landlord;
+import Model.User.User;
 
 public class Main {
     public static void main(String[] args) {

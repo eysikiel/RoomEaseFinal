@@ -1,4 +1,5 @@
 package Model.Contract;
+
 import java.util.Date;
 
 public class Application {
@@ -9,7 +10,8 @@ public class Application {
     private Date dateSubmitted;
     private boolean initialPaymentMade;
 
-    public Application(String applicationID, String applicantID, String preferredRoomID, String applicationStatus, Date dateSubmitted, boolean initialPaymentMade) {
+    public Application(String applicationID, String applicantID, String preferredRoomID, String applicationStatus,
+            Date dateSubmitted, boolean initialPaymentMade) {
         this.applicationID = applicationID;
         this.applicantID = applicantID;
         this.preferredRoomID = preferredRoomID;
@@ -112,9 +114,5 @@ public class Application {
         applicationStatus = "rejected";
         return true;
     }
-
-
-
-
 
 }

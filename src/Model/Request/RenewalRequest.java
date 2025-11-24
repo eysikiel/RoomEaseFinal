@@ -1,4 +1,5 @@
 package Model.Request;
+
 import java.util.Date;
 
 import Enums.ContractStatus;
@@ -10,7 +11,8 @@ public class RenewalRequest extends Requests {
     private Contract contractID;
     private Date proposedEndDate;
 
-    public RenewalRequest(String requestID, Room roomID, RequestStatus requestStatus, Contract contractID, Date proposedEndDate) {
+    public RenewalRequest(String requestID, Room roomID, RequestStatus requestStatus, Contract contractID,
+            Date proposedEndDate) {
         super(requestID, roomID, requestStatus);
         this.contractID = contractID;
         this.proposedEndDate = proposedEndDate;

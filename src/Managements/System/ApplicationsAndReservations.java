@@ -4,7 +4,7 @@ import java.util.InputMismatchException;
 import java.util.LinkedList;
 import java.util.Scanner;
 
-import src.Model.Contract.Application;
+import Model.Contract.Application;
 
 public class ApplicationsAndReservations {
 

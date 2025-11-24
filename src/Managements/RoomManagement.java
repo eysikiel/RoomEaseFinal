@@ -4,7 +4,7 @@ import java.util.Scanner;
 import Enums.RoomPricingType;
 import Enums.RoomStatus;
 import Enums.RoomType;
-import src.Model.Property.Room;
+import Model.Property.Room;
 
 import java.util.InputMismatchException;
 import java.util.LinkedList;

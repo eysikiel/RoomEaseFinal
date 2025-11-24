@@ -21,7 +21,8 @@ public class Tenant extends User {
     private double balance;
     private String emergencyContact;
 
-    public Tenant(String contactNumber, String firstName, String lastName, String password, String userID, String username, Role role,
+    public Tenant(String contactNumber, String firstName, String lastName, String password, String userID,
+            String username, Role role,
             String tenantID, String roomID, Contract contract, double balance, String emergencyContact) {
         super(contactNumber, firstName, lastName, password, userID, username, role);
         this.tenantID = tenantID;
@@ -100,7 +101,8 @@ public class Tenant extends User {
                         viewProfile();
                         break;
                     case 2:
-                        System.out.print("Enter field to edit (firstname, lastname, contactnumber, username, password, emergencycontact): ");
+                        System.out.print(
+                                "Enter field to edit (firstname, lastname, contactnumber, username, password, emergencycontact): ");
                         String field = sc.nextLine();
                         System.out.print("Enter new value: ");
                         String newValue = sc.nextLine();
@@ -123,7 +125,8 @@ public class Tenant extends User {
                         System.out.print("Enter maintenance issue description: ");
                         String issue = sc.nextLine();
                         // Note: Need actual Room object, using null for now
-                        MaintenanceRequest request = new MaintenanceRequest("MR" + System.currentTimeMillis(), null, this, issue, new Date());
+                        MaintenanceRequest request = new MaintenanceRequest("MR" + System.currentTimeMillis(), null,
+                                this, issue, new Date());
                         submitMaintenanceRequest(request);
                         break;
                     case 6:
@@ -150,7 +153,7 @@ public class Tenant extends User {
         }
     }
 
-    //add sa uml
+    // add sa uml
     public void viewProfile() {
         System.out.println("=== MY PROFILE ===");
         System.out.println("Tenant ID: " + getTenantID());
