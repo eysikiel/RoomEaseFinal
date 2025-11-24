@@ -3,7 +3,7 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Scanner;
 
-public class Applicant {
+public class Applicant extends User {
 
     private String applicantID;
     private String preferredRoomID;
@@ -19,16 +19,29 @@ public class Applicant {
         this.applicationStatus = "None";
         this.viewingRequests = new LinkedList<>();
 
-        roomList = new LinkedList<>();
-        roomList.add(new Room("R101", "Single Room", 3500, "WiFi, Aircon, Bed, Cabinet", "Available"));
-        roomList.add(new Room("R204", "Double Sharing", 2200, "WiFi, Fan, Table, Common CR", "2 Slots Left"));
+        roomList.add(new Room(2, 3500, "", "0001", "0001"));
     }
+
+    public String getApplicantID() {return applicantID;}
+
+    public void setApplicantID(String applicantID) {this.applicantID = applicantID;}
+
+    public String getPreferredRoomID() {return preferredRoomID;}
+
+    public void setPreferredRoomID(String preferredRoomID) {this.preferredRoomID = preferredRoomID;}
+
+    public String getApplicationStatus() {return applicationStatus;}
+
+    public void setApplicationStatus(String applicationStatus) {this.applicationStatus = applicationStatus;}
+
+    public LinkedList<ViewingRequest> getViewingRequests() {return viewingRequests;}
+
+    public void setViewingRequests(LinkedList<ViewingRequest> viewingRequests) {this.viewingRequests = viewingRequests;}
 
     public void viewAvailableRooms() {
 
         System.out.println("\n---- VIEW AVAILABLE ROOMS ----");
 
-        // Show unsorted rooms first
         System.out.println("\n--- UNSORTED ROOMS ---");
         displayRooms(roomList);
 
@@ -73,7 +86,7 @@ public class Applicant {
             System.out.println("   Type: " + r.getType());
             System.out.println("   Price: " + nf.format(r.getPrice()) + " / month");
             System.out.println("   Amenities: " + r.getAmenities());
-            System.out.println("   Availability: " + r.getAvailability());
+            System.out.println("   Availability: " + r.getStatus());
         }
     }
 
@@ -186,6 +199,9 @@ public class Applicant {
         }
         System.out.println("Message sent to admin: " + msg);
     }
+
+    @Override
+    public void displayRoleMenu() {displayApplicantMenu();}
 
     public void displayApplicantMenu() {
         System.out.println("\n===== APPLICANT MENU =====");
