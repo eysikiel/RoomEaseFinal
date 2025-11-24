@@ -1,13 +1,11 @@
 package Managements;
-import java.util.Scanner;
-
 import Enums.RoomPricingType;
 import Enums.RoomStatus;
 import Enums.RoomType;
 import Model.Property.Room;
-
 import java.util.InputMismatchException;
 import java.util.LinkedList;
+import java.util.Scanner;
 
 
 public class RoomManagement {
