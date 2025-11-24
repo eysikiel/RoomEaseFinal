@@ -233,7 +233,21 @@ public class Applicant extends User {
 
     @Override
     public void displayRoleMenu() {
-        displayApplicantMenu();
+        boolean exit = false;
+        while (!exit) {
+            displayApplicantMenu();
+            System.out.print("Choose an option (0-7): ");
+            try {
+                int choice = Integer.parseInt(input.nextLine().trim());
+                if (choice == 0) {
+                    exit = true;
+                } else {
+                    handleApplicantChoice(choice);
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input! Please enter a number.");
+            }
+        }
     }
 
     public void handleApplicantChoice(int choice) {

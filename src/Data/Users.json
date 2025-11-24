@@ -1,3 +1,31 @@
 {
-    
+  "users": [
+    {
+      "userID": "USR01",
+      "username": "lyka",
+      "password": "lykalamparero",
+      "firstName": "Lyka",
+      "lastName": "Lamparero",
+      "contactNumber": "09561620716",
+      "role": "LANDLORD"
+    },
+    {
+      "userID": "USR02",
+      "username": "yer",
+      "password": "yerrr",
+      "firstName": "Justin",
+      "lastName": "Lamparero",
+      "contactNumber": "+63 912-345-6789",
+      "role": "APPLICANT"
+    },
+    {
+      "userID": "USR03",
+      "username": "hai",
+      "password": "haiii",
+      "firstName": "Adsf",
+      "lastName": "Adsf",
+      "contactNumber": "+63 911-111-1111",
+      "role": "APPLICANT"
+    }
+  ]
 }
