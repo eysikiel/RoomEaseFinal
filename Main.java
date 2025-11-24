@@ -1,11 +1,8 @@
 public class Main {
-
     public static void main(String[] args) {
-        // User app = new User("", "", "", "", "", "", User.Role.TENANT) {};
+        User landlord = new Landlord("09561620716", "Lyka", "Amaguin", "lykaamaguin", "USR01", "lyka", User.Role.LANDLORD);
+        User.getUsers().add(landlord);
 
-        User testUser = new User("+63 912-345-6789", "Hannah", "Fernandez", "12345", "tenant123", "lennywenny", User.Role.TENANT) {};
-        User.addUser(testUser);
-        User app = testUser;
-        app.displayLogInMenu(); 
+        landlord.displayLogInMenu();
     }
 }

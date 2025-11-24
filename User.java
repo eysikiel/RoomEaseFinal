@@ -5,7 +5,6 @@ import java.util.UUID;
 // import java.util.function.Function;
 
 public abstract class User {
-
     protected String userID;
     protected String username;
     protected String password;
@@ -247,7 +246,8 @@ public abstract class User {
                         }
 
                         // new user creation
-                        User newUser = new Applicant(contact, fName, lName, newPassword, UUID.randomUUID().toString().newUsername, Role.APPLICANT) {
+                        User newUser = new Applicant(contact, fName, lName, newPassword, UUID.randomUUID().toString(),
+                                newUsername, Role.APPLICANT) {
                         };
 
                         users.add(newUser);
