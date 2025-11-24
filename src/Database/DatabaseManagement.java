@@ -1,5 +1,265 @@
 package Database;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import Model.User.Applicant;
+import Model.User.Landlord;
+import Model.User.Tenant;
+import Model.User.User;
+
 public class DatabaseManagement {
-    // not final yet (Plan pa if how to implement ang database and how to manage)
+
+    private static final String RELATIVE_USERS_PATH = "src" + File.separator + "Data" + File.separator + "Users.json";
+
+    /**
+     * Initialize database: ensure file exists and load users into memory.
+     */
+    public static void init() {
+        try {
+            ensureFileExists();
+            loadUsers();
+        } catch (Exception e) {
+            System.out.println("Warning: failed to initialize database: " + e.getMessage());
+        }
+    }
+
+    private static void ensureFileExists() throws IOException {
+        File f = getUsersFile();
+        File parent = f.getParentFile();
+        if (parent != null && !parent.exists()) {
+            parent.mkdirs();
+        }
+        if (!f.exists()) {
+            try (BufferedWriter bw = new BufferedWriter(
+                    new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8))) {
+                bw.write("{\n  \"users\": []\n}");
+            }
+        }
+    }
+
+    /**
+     * Load users from `src/Data/Users.json` into User.getUsers()
+     */
+    public static void loadUsers() {
+        File f = getUsersFile();
+        if (!f.exists()) {
+            try {
+                ensureFileExists();
+            } catch (IOException e) {
+                System.out.println("Error creating users file: " + e.getMessage());
+                return;
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line).append('\n');
+            }
+        } catch (Exception e) {
+            System.out.println("Error reading users file: " + e.getMessage());
+            return;
+        }
+
+        String content = sb.toString();
+        // find the users array
+        int start = content.indexOf('[');
+        int end = content.lastIndexOf(']');
+        if (start == -1 || end == -1 || end <= start) {
+            return; // nothing to load
+        }
+
+        String array = content.substring(start + 1, end).trim();
+        if (array.isEmpty()) {
+            return;
+        }
+
+        // split objects by '},' boundary but keep braces
+        List<String> objects = splitJsonObjects(array);
+
+        for (String obj : objects) {
+            String userID = extractString(obj, "userID");
+            String username = extractString(obj, "username");
+            String password = extractString(obj, "password");
+            String firstName = extractString(obj, "firstName");
+            String lastName = extractString(obj, "lastName");
+            String contactNumber = extractString(obj, "contactNumber");
+            String roleStr = extractString(obj, "role");
+
+            User.Role role = User.Role.APPLICANT;
+            if (roleStr != null) {
+                try {
+                    role = User.Role.valueOf(roleStr);
+                } catch (Exception ignored) {
+                }
+            }
+
+            try {
+                switch (role) {
+                    case LANDLORD -> {
+                        Landlord l = new Landlord(contactNumber, firstName, lastName, password, userID, username,
+                                User.Role.LANDLORD);
+                        User.getUsers().add(l);
+                    }
+                    case TENANT -> {
+                        String tenantID = extractString(obj, "tenantID");
+                        String roomID = extractString(obj, "roomID");
+                        String emergencyContact = extractString(obj, "emergencyContact");
+                        double balance = extractDouble(obj, "balance", 0.0);
+                        Tenant t = new Tenant(contactNumber, firstName, lastName, password, userID, username,
+                                User.Role.TENANT, tenantID == null ? userID : tenantID, roomID, null, balance,
+                                emergencyContact);
+                        User.getUsers().add(t);
+                    }
+                    default -> {
+                        Applicant a = new Applicant(contactNumber, firstName, lastName, password, userID,
+                                username, User.Role.APPLICANT);
+                        User.getUsers().add(a);
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("Error instantiating user " + username + ": " + e.getMessage());
+            }
+        }
+    }
+
+    private static List<String> splitJsonObjects(String arrayContent) {
+        List<String> out = new ArrayList<>();
+        int brace = 0;
+        int last = 0;
+        for (int i = 0; i < arrayContent.length(); i++) {
+            char c = arrayContent.charAt(i);
+            if (c == '{') {
+                if (brace == 0)
+                    last = i;
+                brace++;
+            } else if (c == '}') {
+                brace--;
+                if (brace == 0) {
+                    out.add(arrayContent.substring(last, i + 1).trim());
+                }
+            }
+        }
+        return out;
+    }
+
+    private static String extractString(String json, String key) {
+        Pattern p = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:\\s*\"([^\"]*)\"");
+        Matcher m = p.matcher(json);
+        if (m.find())
+            return m.group(1);
+        return null;
+    }
+
+    private static double extractDouble(String json, String key, double defaultVal) {
+        Pattern p = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:\\s*([0-9.+-eE]+)");
+        Matcher m = p.matcher(json);
+        if (m.find()) {
+            try {
+                return Double.parseDouble(m.group(1));
+            } catch (Exception e) {
+                return defaultVal;
+            }
+        }
+        return defaultVal;
+    }
+
+    /**
+     * Save current users (User.getUsers()) into `src/Data/Users.json`.
+     */
+    public static void saveUsers() {
+        File f = getUsersFile();
+        try {
+            ensureFileExists();
+        } catch (IOException e) {
+            System.out.println("Error ensuring users file: " + e.getMessage());
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\n  \"users\": [\n");
+
+        List<User> users = User.getUsers();
+        for (int i = 0; i < users.size(); i++) {
+            User u = users.get(i);
+            sb.append("    {");
+            sb.append("\"userID\": \"").append(escape(u.getUserID())).append("\",");
+            sb.append(" \"username\": \"").append(escape(u.getUsername())).append("\",");
+            sb.append(" \"password\": \"").append(escape(u.getPassword())).append("\",");
+            sb.append(" \"firstName\": \"").append(escape(u.getFirstName())).append("\",");
+            sb.append(" \"lastName\": \"").append(escape(u.getLastName())).append("\",");
+            sb.append(" \"contactNumber\": \"").append(escape(u.getContactNumber())).append("\",");
+            sb.append(" \"role\": \"").append(u.getRole() != null ? u.getRole().name() : "APPLICANT").append("\"");
+
+            if (u instanceof Tenant) {
+                Tenant t = (Tenant) u;
+                sb.append(", \"tenantID\": \"").append(escape(t.getTenantID())).append("\"");
+                sb.append(", \"roomID\": \"").append(escape(t.getRoomID())).append("\"");
+                sb.append(", \"balance\": ").append(t.getBalance());
+                sb.append(", \"emergencyContact\": \"").append(escape(t.getEmergencyContact())).append("\"");
+            }
+
+            sb.append(" }");
+            if (i < users.size() - 1)
+                sb.append(",\n");
+            else
+                sb.append('\n');
+        }
+
+        sb.append("  ]\n}");
+
+        try (BufferedWriter bw = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(f, false), StandardCharsets.UTF_8))) {
+            bw.write(sb.toString());
+        } catch (Exception e) {
+            System.out.println("Error writing users file: " + e.getMessage());
+        }
+    }
+
+    private static String escape(String s) {
+        if (s == null)
+            return "";
+        return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
+    }
+
+    private static File getUsersFile() { //! rework this later, not really optimized i think
+        try {
+            File cwd = new File(".").getCanonicalFile();
+            File dir = cwd;
+            // search upward for a folder containing `src`
+            for (int i = 0; i < 10 && dir != null; i++) {
+                File src = new File(dir, "src");
+                if (src.exists() && src.isDirectory()) {
+                    return new File(src, "Data" + File.separator + "Users.json");
+                }
+                dir = dir.getParentFile();
+            }
+        } catch (IOException ignored) {
+        }
+        // fallback to relative path
+        return new File(RELATIVE_USERS_PATH);
+    }
+
+    /**
+     * Add a user to memory and persist immediately.
+     */
+    public static void addUser(User u) {
+        User.getUsers().add(u);
+        saveUsers();
+    }
+
 }

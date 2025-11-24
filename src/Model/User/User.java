@@ -1,10 +1,12 @@
 package Model.User;
 
+import Database.DatabaseManagement;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
-
+// import java.util.function.Function;
 public abstract class User {
 
     protected String userID;
@@ -91,6 +93,35 @@ public abstract class User {
         return users;
     }
 
+    /**
+     * Generate the next sequential user ID (USR1, USR2, etc.)
+     * Fills gaps if users are deleted.
+     */
+    public static String generateNextUserID() {
+        int nextID = 1;
+        boolean found;
+
+        while (true) {
+            String candidateID = "USR" + nextID;
+            found = false;
+
+            // Check if this ID already exists
+            for (User u : users) {
+                if (u.getUserID().equals(candidateID)) {
+                    found = true;
+                    break;
+                }
+            }
+
+            // If ID doesn't exist, use it
+            if (!found) {
+                return candidateID;
+            }
+
+            nextID++;
+        }
+    }
+
     public enum Role {
         LANDLORD,
         TENANT,
@@ -140,6 +171,13 @@ public abstract class User {
         User currentUser = null;
 
         while (true) {
+
+            // If user is logged in, show role menu instead
+            if (currentUser != null) {
+                currentUser.displayRoleMenu();
+                continue; // Back to main menu after role menu exits
+            }
+
             System.out.println("\n\n================== WELCOME to ROOMEASE! ==================\n");
             System.out.println("[1] Register New Account");
             System.out.println("[2] Log In");
@@ -147,7 +185,6 @@ public abstract class User {
             System.out.println("[4] Exit");
             System.out.println("[5] Display Profile");
             System.out.println("\n==========================================================\n");
-
             System.out.print("Please select an option (1-5): ");
 
             int choice;
@@ -162,10 +199,6 @@ public abstract class User {
             switch (choice) {
                 case 1: // register
                     System.out.println("\n\n======================== Register ===========================");
-                    if (currentUser != null) {
-                        System.out.println("You are already logged in as " + currentUser.getFullName() + ".\n");
-                        break;
-                    }
 
                     try {
                         String newUsername;
@@ -247,11 +280,12 @@ public abstract class User {
                             break;
                         }
 
-                        // new user creation
-                        User newUser = new Applicant(contact, fName, lName, newPassword, UUID.randomUUID().toString(),
+                        // new user creation with sequential ID
+                        String newUserID = generateNextUserID();
+                        User newUser = new Applicant(contact, fName, lName, newPassword, newUserID,
                                 newUsername, Role.APPLICANT);
 
-                        users.add(newUser);
+                        DatabaseManagement.addUser(newUser);
                         System.out.println("\nAccount created successfully for " + newUser.getFullName() + "!\n");
                         System.out.println("=============================================================\n\n");
 
@@ -261,16 +295,11 @@ public abstract class User {
                     }
                     break;
                 case 2: // log in
-                    if (currentUser != null) {
-                        System.out.println("\nAlready logged in as " + currentUser.getFullName() + ".\n");
-                        System.out.println("==========================================================\n\n");
-                        break;
-                    }
-
                     System.out.println("\n\n======================== Log In ============================");
 
                     boolean loggedIn = false; // bool to check login status
-                    while (!loggedIn) {
+                    int loginAttempts = 0;
+                    while (!loggedIn && loginAttempts < 3) {
                         try {
                             System.out.print("\nEnter Username (or type 'exit' to cancel): ");
                             String usernameInput = input.nextLine().trim();
@@ -301,14 +330,14 @@ public abstract class User {
                                             "============================================================\n\n");
                                     found = true;
                                     loggedIn = true;
-
-                                    currentUser.displayRoleMenu();
                                     break;
                                 }
                             }
 
                             if (!found) {
+                                loginAttempts++;
                                 System.out.println("\nInvalid username or password. Please try again.\n");
+                                System.out.println("Attempts remaining: " + (3 - loginAttempts) + "\n");
                                 System.out.println("============================================================\n\n");
                             }
 
@@ -322,30 +351,22 @@ public abstract class User {
                             System.out.println("============================================================\n\n");
                         }
                     }
-                    break;
-                case 3: // log out
-                    if (currentUser == null) {
-                        System.out.println("\nNo user is currently logged in.");
+
+                    if (!loggedIn && loginAttempts >= 3) {
+                        System.out.println("\nToo many failed login attempts. Returning to main menu.\n");
                         System.out.println("============================================================\n\n");
-                    } else {
-                        logout(currentUser);
-                        currentUser = null;
                     }
+                    break;
+                case 3: // log out (now handled after role menu)
+                case 5: // display profile (handled in role menu)
+                    System.out.println(
+                            "This option is only available in your role menu. Please return from your role menu first.");
                     break;
                 case 4: // exit
                     System.out.println("\nExiting the application... Goodbye!");
                     input.close();
                     System.out.println("\n============================================================");
                     return;
-                case 5: // display profile
-                    if (currentUser == null) {
-                        System.out.println("\nNo user is currently logged in.");
-                        System.out.println("\n==========================================================\n\n");
-                    } else {
-                        displayProfile(currentUser);
-                        System.out.println("============================================================\n\n");
-                    }
-                    break;
                 default:
                     System.out.println("Invalid input! Please enter a number between 1-5.");
                     System.out.println("\n============================================================\n\n");
