@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
-// import java.util.function.Function;
+import java.util.function.Function;
 
 public abstract class User {
     protected String userID;
@@ -81,12 +81,25 @@ public abstract class User {
         return contactNumber;
     }
 
+    public static void addUser(User user) {
+        users.add(user);
+    }
+
     public Role getRole() {
         return role;
     }
 
     public static List<User> getUsers() {
         return users;
+    }
+
+    public static User findUserByUsername(String username) {
+        for (User user : users) {
+            if (user.getUsername().equals(username)) {
+                return user;
+            }
+        }
+        return null;
     }
 
     public enum Role {
@@ -104,7 +117,7 @@ public abstract class User {
     }
 
     public void displayProfile(User currentUser) {
-        System.out.println("\n================== User Profile ==================\n");
+        System.out.println("\n\n================== User Profile ==================\n");
         System.out.println("User ID: " + currentUser.getUserID());
         System.out.println("Username: " + currentUser.getUsername());
         System.out.println("Name: " + currentUser.getFullName());
@@ -115,25 +128,63 @@ public abstract class User {
 
     public abstract void displayRoleMenu();
 
-    // private static String errorCatching(Scanner input, String prompt,
-    // Function<String, String>) { --> just in case the coding is too redundabt cuz
-    // of the errors lawwwwl
-    // while (true) {
-    // System.out.print(prompt);
-    // String userInput = input.nextLine().trim();
-    // try {
-    // String error = validator.apply(userInput);
-    // if (error != null) {
-    // System.out.println(error + "\n");
-    // continue;
-    // }
-    // return userInput;
-    // } catch (Exception e) {
-    // System.out.println("Error: " + e.getMessage() + "\n");
-    // }
-    // }
-    // }
-    public void displayLogInMenu() { // i think a back button is needed
+    private static String errorCatching(Scanner input, String prompt, Function<String, String> validator) {
+        while (true) {
+            System.out.print(prompt);
+            String userInput = input.nextLine().trim();
+
+            if (userInput.equalsIgnoreCase("exit")) {
+                return null;
+            }
+
+            try {
+                String error = validator.apply(userInput);
+                if (error != null) {
+                    System.out.println(error + "\n");
+                    continue;
+                }
+                return userInput;
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage() + "\n");
+            }
+        }
+    }
+
+    private String getValidatedName(Scanner input, String prompt, String fieldName) {
+        String name = errorCatching(input, prompt, (value) -> {
+            if (value.isEmpty()) return fieldName + " cannot be empty.";
+            if (!value.matches("[A-Za-z]+"))
+                return fieldName + " must only contain letters.";
+            return null;
+        });
+        return name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
+    }
+
+    private int getMenuChoice(Scanner input, String prompt, int min, int max) {
+        String choiceStr = errorCatching(input, prompt, (value) -> {
+            if (value.equalsIgnoreCase("exit") || value.equalsIgnoreCase("back") || value.equalsIgnoreCase("cancel")) {
+                return null;
+            }
+            
+            try {
+                int choice = Integer.parseInt(value);
+                if (choice < min || choice > max) {
+                    return "Please enter a number between " + min + " and " + max + ".";
+                }
+                return null;
+            } catch (NumberFormatException e) {
+                return "Invalid input! Please enter a number.";
+            }
+        });
+        
+        if (choiceStr == null) {
+            return -1; 
+        }
+        
+        return Integer.parseInt(choiceStr);
+    }
+
+    public void displayLogInMenu() { 
         Scanner input = new Scanner(System.in);
         User currentUser = null;
 
@@ -146,109 +197,55 @@ public abstract class User {
             System.out.println("[5] Display Profile");
             System.out.println("\n==========================================================\n");
 
-            System.out.print("Please select an option (1-5): ");
+            System.out.println("Type 'exit' to cancel an action.");
+            int choice = getMenuChoice(input, "Please select and option (1-5)", 1, 5);
 
-            int choice;
-            try {
-                choice = Integer.parseInt(input.nextLine().trim());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input! Please enter a number between 1-5.");
-                System.out.println("\n==========================================================\n");
-                continue;
+            if (choice == -1) {
+                System.out.println("Operation cancelled.");
+                continue; 
             }
+
 
             switch (choice) {
                 case 1: // register
                     System.out.println("\n\n======================== Register ===========================");
+                    System.out.println("Type 'exit' at any prompt to cancel registration.");
                     if (currentUser != null) {
                         System.out.println("You are already logged in as " + currentUser.getFullName() + ".\n");
                         break;
                     }
 
                     try {
-                        String newUsername;
-                        while (true) {
-                            System.out.print("\nEnter Username: ");
-                            newUsername = input.nextLine().trim();
-                            if (newUsername.isEmpty()) {
-                                System.out.println("Username cannot be empty. Try again.\n");
-                                continue;
-                            }
-
-                            boolean duplicate = false;
+                        String newUsername = errorCatching(input, "\nEnter Username: ", (value) -> {
+                            if (value.isEmpty())
+                                return "Username cannot be empty.";
                             for (User u : users) {
-                                if (u.getUsername().equals(newUsername)) {
-                                    duplicate = true;
-                                    break;
-                                }
+                                if (u.getUsername().equals(value))
+                                    return "This username already exists!";
                             }
+                            return null;
+                        });
 
-                            if (duplicate) {
-                                System.out.println("This username already exists! Please use a different username.\n");
-                            } else {
-                                break;
-                            }
-                        }
+                        String newPassword = errorCatching(input, "Enter Password: ", (value) -> {
+                            if (value.isEmpty())
+                                return "Password cannot be empty.";
+                            return null;
+                        });
 
-                        String newPassword;
-                        while (true) {
-                            System.out.print("Enter Password: ");
-                            newPassword = input.nextLine().trim();
-                            if (newPassword.isEmpty()) {
-                                System.out.println("Password cannot be empty. Try again.\n");
-                            } else {
-                                break;
-                            }
-                        }
 
-                        String fName;
-                        while (true) {
-                            System.out.print("Enter First Name: ");
-                            fName = input.nextLine().trim();
-                            if (fName.isEmpty()) {
-                                System.out.println("First Name cannot be empty. Try again.\n");
-                                continue;
-                            } else if (!fName.matches("[A-Za-z]+")) {
-                                System.out.println("First Name must only contain letters. Try again.\n");
-                                continue;
-                            }
-                            fName = fName.substring(0, 1).toUpperCase() + fName.substring(1).toLowerCase();
-                            break;
-                        }
-
-                        String lName;
-                        while (true) {
-                            System.out.print("Enter Last Name: ");
-                            lName = input.nextLine().trim();
-                            if (lName.isEmpty()) {
-                                System.out.println("Last Name cannot be empty. Try again.\n");
-                                continue;
-                            } else if (!lName.matches("[A-Za-z]+")) {
-                                System.out.println("Last Name must only contain letters. Try again.\n");
-                                continue;
-                            }
-                            lName = lName.substring(0, 1).toUpperCase() + lName.substring(1).toLowerCase();
-                            break;
-                        }
-
-                        String contact;
-                        while (true) {
-                            System.out.print("Enter Contact Number (+63 9XX-XXX-XXXX): ");
-                            contact = input.nextLine().trim();
-                            if (contact.isEmpty()) {
-                                System.out.println("Contact Number cannot be empty. Try again.\n");
-                                continue;
-                            } else if (!contact.matches("\\+63 9\\d{2}-\\d{3}-\\d{4}")) {
-                                System.out.println("Invalid format. Please use +63 9XX-XXX-XXXX.\n");
-                                continue;
-                            }
-                            break;
-                        }
-
+                        String fName = getValidatedName(input, "Enter First Name: ", "First Name");
+                        String lName = getValidatedName(input, "Enter Last Name: ", "Last Name");
+                        
+                        String contact = errorCatching(input, "Enter Contact Number (+63 9XX-XXX-XXXX): ", (value) -> {
+                            if (value.isEmpty()) return "Contact Number cannot be empty.";
+                            if (!value.matches("\\+63 9\\d{2}-\\d{3}-\\d{4}")) 
+                                return "Invalid format. Please use +63 9XX-XXX-XXXX.";
+                            return null;
+                        });
+                        
                         // new user creation
-                        User newUser = new Applicant(contact, fName, lName, newPassword, UUID.randomUUID().toString(),
-                                newUsername, Role.APPLICANT) {
-                        };
+                        User newUser = new Applicant(newUsername, newPassword, fName, lName, contact, UUID.randomUUID().toString(),
+                                Role.APPLICANT);
 
                         users.add(newUser);
                         System.out.println("\nAccount created successfully for " + newUser.getFullName() + "!\n");
@@ -268,59 +265,40 @@ public abstract class User {
                     }
 
                     System.out.println("\n\n======================== Log In ============================");
+                    System.out.println("Type 'exit' at any prompt to cancel Log In.");
 
-                    boolean loggedIn = false; // bool to check login status
-                    while (!loggedIn) {
-                        try {
-                            System.out.print("\nEnter Username (or type 'exit' to cancel): ");
-                            String usernameInput = input.nextLine().trim();
+                    String usernameInput = errorCatching(input, "\nEnter Username: ", (value) -> {
+                        if (value.isEmpty()) return "Username cannot be empty.";
+                        return null;
+                    });
+                    
+                    if (usernameInput == null) { 
+                        System.out.println("\nReturning to main menu...\n");
+                        System.out.println("============================================================\n\n");
+                        break;
+                    }
 
-                            if (usernameInput.equalsIgnoreCase("exit")) {
-                                System.out.println("\nReturning to main menu...\n");
-                                System.out.println("============================================================\n\n");
-                                break;
-                            }
+                    String passwordInput = errorCatching(input, "Enter Password: ", (value) -> {
+                        if (value.isEmpty()) return "Password cannot be empty.";
+                        return null;
+                    });
 
-                            if (usernameInput.isEmpty()) {
-                                throw new IllegalArgumentException("Username cannot be empty.");
-                            }
-
-                            System.out.print("Enter Password: ");
-                            String passwordInput = input.nextLine().trim();
-
-                            if (passwordInput.isEmpty()) {
-                                throw new IllegalArgumentException("Password cannot be empty.");
-                            }
-
-                            boolean found = false;
-                            for (User u : users) {
-                                if (u.verifyLogin(usernameInput, passwordInput)) {
-                                    currentUser = u;
-                                    System.out.println("\nLogin successful! Welcome, " + u.getFullName() + "!\n");
-                                    System.out.println(
-                                            "============================================================\n\n");
-                                    found = true;
-                                    loggedIn = true;
-
-                                    currentUser.displayRoleMenu();
-                                    break;
-                                }
-                            }
-
-                            if (!found) {
-                                System.out.println("\nInvalid username or password. Please try again.\n");
-                                System.out.println("============================================================\n\n");
-                            }
-
-                        } catch (IllegalArgumentException e) {
-                            System.out.println("\nError: " + e.getMessage());
-                            System.out.println("Please try again.\n");
+                    boolean found = false;
+                    for (User u : users) {
+                        if (u.verifyLogin(usernameInput, passwordInput)) {
+                            currentUser = u;
+                            System.out.println("\nLogin successful! Welcome, " + u.getFullName() + "!\n");
                             System.out.println("============================================================\n\n");
-                        } catch (Exception e) {
-                            System.out.println("\nUnexpected error during login: " + e.getMessage());
-                            System.out.println("Please try again.\n");
-                            System.out.println("============================================================\n\n");
+                            found = true;
+
+                            currentUser.displayRoleMenu();
+                            break;
                         }
+                    }
+
+                    if (!found) {
+                        System.out.println("\nInvalid username or password. Please try again.\n");
+                        System.out.println("============================================================\n\n");
                     }
                     break;
 
