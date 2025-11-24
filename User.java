@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
-import java.util.function.Function;
+// import java.util.function.Function;
 
 public abstract class User {
 
@@ -82,31 +82,18 @@ public abstract class User {
         return contactNumber;
     }
 
-    public static List<User> getUsers() {
-        return users;
-    }
-
     public Role getRole() {
         return role;
     }
 
-    public static void addUser(User user) {
-        users.add(user);
-    }
-
-    public static User findUserByUsername(String username) {
-        for (User user : users) {
-            if (user.getUsername().equals(username)) {
-                return user;
-            }
-        }
-        return null;
+    public static List<User> getUsers() {
+        return users;
     }
 
     public enum Role {
-        ADMIN,
         LANDLORD,
-        TENANT
+        TENANT,
+        APPLICANT
     }
 
     public boolean verifyLogin(String username, String password) {
@@ -118,7 +105,7 @@ public abstract class User {
     }
 
     public void displayProfile(User currentUser) {
-        System.out.println("\n\n================== User Profile ==================\n");
+        System.out.println("\n================== User Profile ==================\n");
         System.out.println("User ID: " + currentUser.getUserID());
         System.out.println("Username: " + currentUser.getUsername());
         System.out.println("Name: " + currentUser.getFullName());
@@ -127,28 +114,26 @@ public abstract class User {
         System.out.println("\n=================================================\n");
     }
 
-    private static String errorCatching(Scanner input, String prompt, Function<String, String> validator) {
-        while (true) {
-            System.out.print(prompt);
-            String userInput = input.nextLine().trim();
+    public abstract void displayRoleMenu();
 
-            if (userInput.equalsIgnoreCase("exit") || userInput.equalsIgnoreCase("back")) {
-                return null;
-            }
-
-            try {
-                String error = validator.apply(userInput);
-                if (error != null) {
-                    System.out.println(error + "\n");
-                    continue;
-                }
-                return userInput;
-            } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage() + "\n");
-            }
-        }
-    }
-
+    // private static String errorCatching(Scanner input, String prompt,
+    // Function<String, String>) { --> just in case the coding is too redundabt cuz
+    // of the errors lawwwwl
+    // while (true) {
+    // System.out.print(prompt);
+    // String userInput = input.nextLine().trim();
+    // try {
+    // String error = validator.apply(userInput);
+    // if (error != null) {
+    // System.out.println(error + "\n");
+    // continue;
+    // }
+    // return userInput;
+    // } catch (Exception e) {
+    // System.out.println("Error: " + e.getMessage() + "\n");
+    // }
+    // }
+    // }
     public void displayLogInMenu() { // i think a back button is needed
         Scanner input = new Scanner(System.in);
         User currentUser = null;
@@ -182,21 +167,40 @@ public abstract class User {
                     }
 
                     try {
-                        String newUsername = errorCatching(input, "\nEnter Username: ", (value) -> {
-                            if (value.isEmpty())
-                                return "Username cannot be empty.";
-                            for (User u : users) {
-                                if (u.getUsername().equals(value))
-                                    return "This username already exists!";
+                        String newUsername;
+                        while (true) {
+                            System.out.print("\nEnter Username: ");
+                            newUsername = input.nextLine().trim();
+                            if (newUsername.isEmpty()) {
+                                System.out.println("Username cannot be empty. Try again.\n");
+                                continue;
                             }
-                            return null;
-                        });
 
-                        String newPassword = errorCatching(input, "Enter Password: ", (value) -> {
-                            if (value.isEmpty())
-                                return "Password cannot be empty.";
-                            return null;
-                        });
+                            boolean duplicate = false;
+                            for (User u : users) {
+                                if (u.getUsername().equals(newUsername)) {
+                                    duplicate = true;
+                                    break;
+                                }
+                            }
+
+                            if (duplicate) {
+                                System.out.println("This username already exists! Please use a different username.\n");
+                            } else {
+                                break;
+                            }
+                        }
+
+                        String newPassword;
+                        while (true) {
+                            System.out.print("Enter Password: ");
+                            newPassword = input.nextLine().trim();
+                            if (newPassword.isEmpty()) {
+                                System.out.println("Password cannot be empty. Try again.\n");
+                            } else {
+                                break;
+                            }
+                        }
 
                         String fName;
                         while (true) {
@@ -243,8 +247,7 @@ public abstract class User {
                         }
 
                         // new user creation
-                        User newUser = new User(contact, fName, lName, newPassword, UUID.randomUUID().toString(),
-                                newUsername, Role.TENANT) {
+                        User newUser = new Applicant(contact, fName, lName, newPassword, UUID.randomUUID().toString().newUsername, Role.APPLICANT) {
                         };
 
                         users.add(newUser);
@@ -298,6 +301,8 @@ public abstract class User {
                                             "============================================================\n\n");
                                     found = true;
                                     loggedIn = true;
+
+                                    currentUser.displayRoleMenu();
                                     break;
                                 }
                             }

@@ -1,4 +1,3 @@
-
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -12,23 +11,28 @@ public class Landlord extends User {
     private RoomManagement roomManagement;
     private TenantManagement tenantManagement;
     private BillingAndPayments billingAndPayments;
-    private ViewingRequests viewingRequests;
+    private ViewingManagement viewingManagement;
     private ApplicationsAndReservations applicationsAndReservations;
-    private MaintenanceRequests maintenanceRequests;
+    private MaintenanceManagement maintenanceManagement;
     private ReportsAndAnalytics reportsAndAnalytics;
     private SystemSettings systemSettings;
 
-    public Landlord(ApplicationsAndReservations applicationsAndReservations, BillingAndPayments billingAndPayments, String landlordID, MaintenanceRequests maintenanceRequests, ReportsAndAnalytics reportsAndAnalytics, RoomManagement roomManagement, SystemSettings systemSettings, TenantManagement tenantManagement, ViewingRequests viewingRequests, String contactNumber, String firstName, String lastName, String password, String userID, String username, Role role) {
+    public Landlord(ApplicationsAndReservations applicationsAndReservations, BillingAndPayments billingAndPayments, String landlordID, MaintenanceManagement maintenanceManagement, ReportsAndAnalytics reportsAndAnalytics, RoomManagement roomManagement, SystemSettings systemSettings, TenantManagement tenantManagement, ViewingManagement viewingManagement, String contactNumber, String firstName, String lastName, String password, String userID, String username, Role role) {
         super(contactNumber, firstName, lastName, password, userID, username, role);
         this.applicationsAndReservations = applicationsAndReservations;
         this.billingAndPayments = billingAndPayments;
         this.landlordID = landlordID;
-        this.maintenanceRequests = maintenanceRequests;
+        this.maintenanceManagement = maintenanceManagement;
         this.reportsAndAnalytics = reportsAndAnalytics;
-        this.roomManagement = roomManagement;
         this.systemSettings = systemSettings;
         this.tenantManagement = tenantManagement;
-        this.viewingRequests = viewingRequests;
+        this.viewingManagement = viewingManagement;
+    }
+
+    public Landlord(String contactNumber, String firstName, String lastName, String password, String userID, String username, User.Role role) {
+        super(contactNumber, firstName, lastName, password, userID, username, role);
+        this.landlordID = userID;
+        this.roomManagement = new RoomManagement();
     }
 
     public int getChoice() {
@@ -44,7 +48,10 @@ public class Landlord extends User {
     }
 
     public RoomManagement getRoomManagement() {
-        return roomManagement;
+        if (this.roomManagement == null) {
+            this.roomManagement = new RoomManagement();
+        }
+        return this.roomManagement;
     }
 
     public TenantManagement getTenantManagement() {
@@ -55,16 +62,16 @@ public class Landlord extends User {
         return billingAndPayments;
     }
 
-    public ViewingRequests getViewingRequests() {
-        return viewingRequests;
+    public ViewingManagement getViewingRequests() {
+        return viewingManagement;
     }
 
     public ApplicationsAndReservations getApplicationsAndReservations() {
         return applicationsAndReservations;
     }
 
-    public MaintenanceRequests getMaintenanceRequests() {
-        return maintenanceRequests;
+    public MaintenanceManagement getMaintenanceRequests() {
+        return maintenanceManagement;
     }
 
     public ReportsAndAnalytics getReportsAndAnalytics() {
@@ -99,16 +106,16 @@ public class Landlord extends User {
         this.billingAndPayments = billingAndPayments;
     }
 
-    public void setViewingRequests(ViewingRequests viewingRequests) {
-        this.viewingRequests = viewingRequests;
+    public void setViewingRequests(ViewingManagement viewingManagement) {
+        this.viewingManagement = viewingManagement;
     }
 
     public void setApplicationsAndReservations(ApplicationsAndReservations applicationsAndReservations) {
         this.applicationsAndReservations = applicationsAndReservations;
     }
 
-    public void setMaintenanceRequests(MaintenanceRequests maintenanceRequests) {
-        this.maintenanceRequests = maintenanceRequests;
+    public void setMaintenanceRequests(MaintenanceManagement maintenanceManagement) {
+        this.maintenanceManagement = maintenanceManagement;
     }
 
     public void setReportsAndAnalytics(ReportsAndAnalytics reportsAndAnalytics) {
@@ -154,6 +161,12 @@ public class Landlord extends User {
     @Override
     public void displayProfile() {
     } */
+
+    @Override
+    public void displayRoleMenu() {
+        displayLandlordMenu();
+    }
+
     public void displayLandlordMenu() {
 
         do {
@@ -194,7 +207,8 @@ public class Landlord extends User {
         switch (choice) {
             case 1:
                 System.out.println("Opening Room Management...");
-            // roomManagement.displaySubmenu();
+                getRoomManagement().displayMenu();
+                break;
             case 2:
                 System.out.println("Opening Tenant Management...");
             case 3:
