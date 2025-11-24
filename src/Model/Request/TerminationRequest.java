@@ -1,4 +1,5 @@
 package Model.Request;
+
 import java.util.Date;
 import java.util.Scanner;
 
@@ -11,12 +12,14 @@ public class TerminationRequest extends Requests {
     private Date terminationDate;
     private String terminationReason;
 
-    public TerminationRequest(String requestID, Room roomID, RequestStatus requestStatus, Contract contractID, Date terminationDate, String terminationReason) {
+    public TerminationRequest(String requestID, Room roomID, RequestStatus requestStatus, Contract contractID,
+            Date terminationDate, String terminationReason) {
         super(requestID, roomID, requestStatus);
         this.contractID = contractID;
         this.terminationDate = terminationDate;
         this.terminationReason = terminationReason;
     }
+
     public Contract getContractID() {
         return contractID;
     }

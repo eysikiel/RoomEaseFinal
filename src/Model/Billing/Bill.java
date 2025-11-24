@@ -1,4 +1,5 @@
 package Model.Billing;
+
 import Enums.BillStatus;
 import Enums.TypesOfBill;
 import Model.Contract.Contract;
@@ -12,7 +13,8 @@ public class Bill {
     private double amount;
     private BillStatus status;
 
-    public Bill(String billID, String tenantID, Contract contractID, TypesOfBill type, double amount, BillStatus status) {
+    public Bill(String billID, String tenantID, Contract contractID, TypesOfBill type, double amount,
+            BillStatus status) {
         this.billID = billID;
         this.tenantID = tenantID;
         this.contractID = contractID;
@@ -75,7 +77,7 @@ public class Bill {
         for (TypesOfBill billType : TypesOfBill.values()) {
             switch (billType) {
                 case MONTHLY_PAYMENT:
-                    total += contractID.getMonthlyRent();   // Example amount
+                    total += contractID.getMonthlyRent(); // Example amount
                     break;
                 case WATER:
                     total += 150;

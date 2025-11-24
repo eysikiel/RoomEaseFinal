@@ -1,4 +1,5 @@
 package Model.Request;
+
 import Enums.RequestStatus;
 import Model.Property.Room;
 
@@ -42,7 +43,8 @@ public abstract class Requests {
             this.requestStatus = RequestStatus.valueOf(newStatus.toUpperCase());
             return true;
         } catch (IllegalArgumentException e) {
-            System.out.println("Invalid status: " + newStatus + ". Valid values are: " + java.util.Arrays.toString(RequestStatus.values()));
+            System.out.println("Invalid status: " + newStatus + ". Valid values are: "
+                    + java.util.Arrays.toString(RequestStatus.values()));
             return false;
         }
     }

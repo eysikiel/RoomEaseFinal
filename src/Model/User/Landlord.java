@@ -1,4 +1,5 @@
 package Model.User;
+
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -27,7 +28,11 @@ public class Landlord extends User {
     private ReportsAndAnalytics reportsAndAnalytics;
     private SystemSettings systemSettings;
 
-    public Landlord(ApplicationsAndReservations applicationsAndReservations, BillingAndPayments billingAndPayments, String landlordID, MaintenanceManagement maintenanceManagement, ReportsAndAnalytics reportsAndAnalytics, RoomManagement roomManagement, SystemSettings systemSettings, TenantManagement tenantManagement, ViewingManagement viewingManagement, String contactNumber, String firstName, String lastName, String password, String userID, String username, Role role) {
+    public Landlord(ApplicationsAndReservations applicationsAndReservations, BillingAndPayments billingAndPayments,
+            String landlordID, MaintenanceManagement maintenanceManagement, ReportsAndAnalytics reportsAndAnalytics,
+            RoomManagement roomManagement, SystemSettings systemSettings, TenantManagement tenantManagement,
+            ViewingManagement viewingManagement, String contactNumber, String firstName, String lastName,
+            String password, String userID, String username, Role role) {
         super(contactNumber, firstName, lastName, password, userID, username, role);
         this.applicationsAndReservations = applicationsAndReservations;
         this.billingAndPayments = billingAndPayments;
@@ -39,7 +44,8 @@ public class Landlord extends User {
         this.viewingManagement = viewingManagement;
     }
 
-    public Landlord(String contactNumber, String firstName, String lastName, String password, String userID, String username, User.Role role) {
+    public Landlord(String contactNumber, String firstName, String lastName, String password, String userID,
+            String username, User.Role role) {
         super(contactNumber, firstName, lastName, password, userID, username, role);
         this.landlordID = userID;
         this.roomManagement = new RoomManagement();
@@ -163,14 +169,16 @@ public class Landlord extends User {
     public void accessSystemSettings() {
     }
 
-    /*@Override
-    public boolean verifyLogin(String username, String password) {
-        return false;
-    }
-
-    @Override
-    public void displayProfile() {
-    } */
+    /*
+     * @Override
+     * public boolean verifyLogin(String username, String password) {
+     * return false;
+     * }
+     * 
+     * @Override
+     * public void displayProfile() {
+     * }
+     */
 
     @Override
     public void displayRoleMenu() {

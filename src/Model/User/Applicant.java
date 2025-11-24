@@ -69,7 +69,7 @@ public class Applicant extends User {
     }
 
     public void displayRooms(LinkedList<Room> list) {
-        NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("en", "PH")); // ₱ format
+        NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.of("en", "PH")); // ₱ format
         nf.setMaximumFractionDigits(0);
 
         int num = 1;

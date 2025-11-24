@@ -19,7 +19,8 @@ public class Contract {
     private double deposit;
     private ContractStatus contractStatus;
 
-    public Contract(String contractID, Tenant tenantID, Room roomID, Date startDate, Date endDate, double monthlyRent, double deposit, ContractStatus contractStatus) {
+    public Contract(String contractID, Tenant tenantID, Room roomID, Date startDate, Date endDate, double monthlyRent,
+            double deposit, ContractStatus contractStatus) {
         this.contractID = contractID;
         this.tenantID = tenantID;
         this.roomID = roomID;

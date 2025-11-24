@@ -1,5 +1,5 @@
 package Managements;
-public class ViewingManagement {
 
     
+public class ViewingManagement {
 }
