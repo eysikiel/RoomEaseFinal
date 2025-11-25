@@ -1,32 +1,51 @@
 package Managements;
+
 import Enums.RoomPricingType;
 import Enums.RoomStatus;
 import Enums.RoomType;
 import Model.Property.Room;
+import Database.DatabaseManagement;
 import java.util.InputMismatchException;
 import java.util.LinkedList;
 import java.util.Scanner;
 
-
 public class RoomManagement {
 
     private Scanner input = new Scanner(System.in);
-    private LinkedList<Room> roomList = new LinkedList<>();
+    private LinkedList<Room> roomList;
+    private DatabaseManagement databaseManager;
     private int choice;
 
+    // Constructor that accepts DatabaseManagement instance
+    public RoomManagement(DatabaseManagement databaseManager) {
+        this.databaseManager = databaseManager;
+        loadRoomsFromDatabase();
+    }
 
-    
+    // Load rooms from database on initialization
+    private void loadRoomsFromDatabase() {
+        this.roomList = databaseManager.getRooms();
+        if (this.roomList == null) {
+            this.roomList = new LinkedList<>();
+        }
+    }
+
+    // Save rooms to database
+    private void saveRoomsToDatabase() {
+        databaseManager.saveRooms(roomList);
+    }
+
     public void displayMenu() {
         do {
-            System.out.println("───────────────────────────────────────────────");
-            System.out.println("              ROOM MANAGEMENT MENU             ");
-            System.out.println("───────────────────────────────────────────────");
+            System.out.println("-------------------------------------------------");
+            System.out.println("              ROOM MANAGEMENT MENU               ");
+            System.out.println("-------------------------------------------------");
             System.out.println("[1] View Rooms");
             System.out.println("[2] Add Room");
             System.out.println("[3] Edit Room");
             System.out.println("[4] Delete Room");
             System.out.println("[5] Exit");
-            System.out.println("───────────────────────────────────────────────");
+            System.out.println("-------------------------------------------------");
             System.out.print("Enter your choice: ");
 
             try {
@@ -44,7 +63,6 @@ public class RoomManagement {
                 System.out.println("Invalid input. Please enter a number only.");
                 input.nextLine();
             }
-
         } while (choice != 5);
     }
 
@@ -72,12 +90,15 @@ public class RoomManagement {
     }
 
     public void viewRooms() {
+        // Reload from database to ensure we have latest data
+        loadRoomsFromDatabase();
+        
         if (roomList.isEmpty()) {
             System.out.println("No rooms available.");
         } else {
-            System.out.println("───────────────────────────────────────────────");
-            System.out.println("                  View Rooms                   ");
-            System.out.println("───────────────────────────────────────────────");
+            System.out.println("-------------------------------------------------");
+            System.out.println("                  View Rooms                     ");
+            System.out.println("-------------------------------------------------");
             for (Room room : roomList) {
                 room.displayInfo();
             }
@@ -85,19 +106,27 @@ public class RoomManagement {
     }
 
     public void addRoom() {
-        System.out.println("───────────────────────────────────────────────");
-        System.out.println("                  Add New Room                 ");
-        System.out.println("───────────────────────────────────────────────");
+        System.out.println("-------------------------------------------------");
+        System.out.println("                  Add New Room                   ");
+        System.out.println("-------------------------------------------------");
 
         System.out.print("Enter room number: ");
         String roomNumber = input.nextLine();
+
+        // Check if room number already exists
+        for (Room room : roomList) {
+            if (room.getRoomNumber().equals(roomNumber)) {
+                System.out.println("Room number already exists! Please use a different room number.");
+                return;
+            }
+        }
 
         System.out.println("Select Room Type:");
         System.out.println("1. Single");
         System.out.println("2. Double");
         System.out.println("3. Shared");
         int typeChoice = input.nextInt();
-        input.nextLine(); // consume newline
+        input.nextLine();
 
         RoomType roomType;
         switch (typeChoice) {
@@ -138,15 +167,21 @@ public class RoomManagement {
             System.out.println("Invalid choice! Defaulting to Per Head.");
             pricingType = RoomPricingType.per_head;
         }
+
+        // Generate room ID based on existing rooms count
         String roomID = "R" + (roomList.size() + 1);
 
         Room newRoom = new Room(capacity, price, pricingType, roomID, roomNumber, RoomStatus.Vacant, roomType);
 
         roomList.add(newRoom);
+        saveRoomsToDatabase(); // Save to database
         System.out.println("Room added successfully!");
     }
 
     public void editRoom() {
+        // Reload from database to ensure we have latest data
+        loadRoomsFromDatabase();
+        
         if (roomList.isEmpty()) {
             System.out.println("No rooms available to edit.");
             return;
@@ -183,6 +218,15 @@ public class RoomManagement {
             case 1:
                 System.out.print("Enter new Room Number: ");
                 String newNumber = input.nextLine();
+                
+                // Check if new room number already exists
+                for (Room room : roomList) {
+                    if (room.getRoomNumber().equals(newNumber) && !room.getRoomID().equals(roomToEdit.getRoomID())) {
+                        System.out.println("Room number already exists! Please use a different room number.");
+                        return;
+                    }
+                }
+                
                 roomToEdit.setRoomNumber(newNumber);
                 System.out.println("Room number updated successfully!");
                 break;
@@ -262,10 +306,14 @@ public class RoomManagement {
                 break;
         }
 
+        saveRoomsToDatabase(); // Save changes to database
         System.out.println("Room updated successfully!");
     }
 
     public void deleteRoomMenu() {
+        // Reload from database to ensure we have latest data
+        loadRoomsFromDatabase();
+        
         if (roomList.isEmpty()) {
             System.out.println("No rooms available to delete.");
             return;
@@ -277,6 +325,7 @@ public class RoomManagement {
         for (Room room : roomList) {
             if (room.getRoomID().equals(roomID)) {
                 roomList.remove(room);
+                saveRoomsToDatabase(); // Save changes to database
                 System.out.println("Room " + roomID + " successfully deleted!");
                 return;
             }
@@ -284,5 +333,4 @@ public class RoomManagement {
 
         System.out.println("Room with ID " + roomID + " not found.");
     }
-
 }

@@ -1,12 +1,10 @@
 package Model.User;
 
 import Database.DatabaseManagement;
+import Utilities.InputValidator;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.UUID;
-// import java.util.function.Function;
+import java.util.LinkedList;
+
 public abstract class User {
 
     protected String userID;
@@ -16,7 +14,7 @@ public abstract class User {
     protected String lastName;
     protected String contactNumber;
     protected Role role;
-    private static final List<User> users = new ArrayList<>();
+    private static final LinkedList<User> users = new LinkedList<>();
 
     public User(String contactNumber, String firstName, String lastName, String password, String userID,
             String username, Role role) {
@@ -29,6 +27,7 @@ public abstract class User {
         this.role = role;
     }
 
+    // Getter and setter methods
     public void setUserID(String userID) {
         this.userID = userID;
     }
@@ -89,20 +88,32 @@ public abstract class User {
         return role;
     }
 
-    public static List<User> getUsers() {
+    public static LinkedList<User> getUsers() {
         return users;
     }
 
-    /**
-     * Generate the next sequential user ID (USR1, USR2, etc.)
-     * Fills gaps if users are deleted.
-     */
-    public static String generateNextUserID() {
+    // UPDATED ID GENERATION METHOD
+    public static String generateNextUserID(Role role) {
+        String prefix;
+        switch (role) {
+            case LANDLORD:
+                prefix = "LND";
+                break;
+            case TENANT:
+                prefix = "TNT";
+                break;
+            case APPLICANT:
+                prefix = "APT";
+                break;
+            default:
+                prefix = "USR";
+        }
+        
         int nextID = 1;
         boolean found;
 
         while (true) {
-            String candidateID = "USR" + nextID;
+            String candidateID = prefix + String.format("%03d", nextID);
             found = false;
 
             // Check if this ID already exists
@@ -112,12 +123,9 @@ public abstract class User {
                     break;
                 }
             }
-
-            // If ID doesn't exist, use it
             if (!found) {
                 return candidateID;
             }
-
             nextID++;
         }
     }
@@ -136,241 +144,169 @@ public abstract class User {
         System.out.println("User " + currentUser.getFullName() + " has logged out.");
     }
 
-    public void displayProfile(User currentUser) {
-        System.out.println("\n================== User Profile ==================\n");
-        System.out.println("User ID: " + currentUser.getUserID());
-        System.out.println("Username: " + currentUser.getUsername());
-        System.out.println("Name: " + currentUser.getFullName());
-        System.out.println("Contact Number: " + currentUser.getContactNumber());
-        System.out.println("Role: " + currentUser.getRole());
-        System.out.println("\n=================================================\n");
+    public void displayProfile() {
+        System.out.println("-------------------------------------------------");
+        System.out.println("                  USER PROFILE                   ");
+        System.out.println("-------------------------------------------------");
+        System.out.println("User ID: " + getUserID());
+        System.out.println("Username: " + getUsername());
+        System.out.println("Name: " + getFullName());
+        System.out.println("Contact Number: " + getContactNumber());
+        System.out.println("Role: " + getRole());
+        System.out.println("-------------------------------------------------");
     }
 
     public abstract void displayRoleMenu();
 
-    // private static String errorCatching(Scanner input, String prompt,
-    // Function<String, String>) { --> just in case the coding is too redundabt cuz
-    // of the errors lawwwwl
-    // while (true) {
-    // System.out.print(prompt);
-    // String userInput = input.nextLine().trim();
-    // try {
-    // String error = validator.apply(userInput);
-    // if (error != null) {
-    // System.out.println(error + "\n");
-    // continue;
-    // }
-    // return userInput;
-    // } catch (Exception e) {
-    // System.out.println("Error: " + e.getMessage() + "\n");
-    // }
-    // }
-    // }
-    public void displayLogInMenu() { // i think a back button is needed
-        Scanner input = new Scanner(System.in);
+    public void displayLogInMenu() {
         User currentUser = null;
 
         while (true) {
-
             // If user is logged in, show role menu instead
             if (currentUser != null) {
                 currentUser.displayRoleMenu();
-                continue; // Back to main menu after role menu exits
-            }
-
-            System.out.println("\n\n================== WELCOME to ROOMEASE! ==================\n");
-            System.out.println("[1] Register New Account");
-            System.out.println("[2] Log In");
-            System.out.println("[3] Log Out");
-            System.out.println("[4] Exit");
-            System.out.println("[5] Display Profile");
-            System.out.println("\n==========================================================\n");
-            System.out.print("Please select an option (1-5): ");
-
-            int choice;
-            try {
-                choice = Integer.parseInt(input.nextLine().trim());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input! Please enter a number between 1-5.");
-                System.out.println("\n==========================================================\n");
+                currentUser = null; // Reset after returning from role menu
                 continue;
             }
 
+            // DISPLAY THE MENU FIRST
+            System.out.println("----------------------------------------------------------");
+            System.out.println("                   WELCOME to ROOMEASE!                   ");
+            System.out.println("----------------------------------------------------------");
+            System.out.println("[1] Register New Account");
+            System.out.println("[2] Log In");
+            System.out.println("[3] Exit");
+            System.out.println("----------------------------------------------------------");
+            
+            // THEN GET THE CHOICE (NO MENU TITLE PARAMETER)
+            int choice = InputValidator.getMenuChoice(3);
+            if (choice == -1) {
+                continue; // User cancelled, show menu again
+            }
+
             switch (choice) {
-                case 1: // register
-                    System.out.println("\n\n======================== Register ===========================");
-
-                    try {
-                        String newUsername;
-                        while (true) {
-                            System.out.print("\nEnter Username: ");
-                            newUsername = input.nextLine().trim();
-                            if (newUsername.isEmpty()) {
-                                System.out.println("Username cannot be empty. Try again.\n");
-                                continue;
-                            }
-
-                            boolean duplicate = false;
-                            for (User u : users) {
-                                if (u.getUsername().equals(newUsername)) {
-                                    duplicate = true;
-                                    break;
-                                }
-                            }
-
-                            if (duplicate) {
-                                System.out.println("This username already exists! Please use a different username.\n");
-                            } else {
-                                break;
-                            }
-                        }
-
-                        String newPassword;
-                        while (true) {
-                            System.out.print("Enter Password: ");
-                            newPassword = input.nextLine().trim();
-                            if (newPassword.isEmpty()) {
-                                System.out.println("Password cannot be empty. Try again.\n");
-                            } else {
-                                break;
-                            }
-                        }
-
-                        String fName;
-                        while (true) {
-                            System.out.print("Enter First Name: ");
-                            fName = input.nextLine().trim();
-                            if (fName.isEmpty()) {
-                                System.out.println("First Name cannot be empty. Try again.\n");
-                                continue;
-                            } else if (!fName.matches("[A-Za-z]+")) {
-                                System.out.println("First Name must only contain letters. Try again.\n");
-                                continue;
-                            }
-                            fName = fName.substring(0, 1).toUpperCase() + fName.substring(1).toLowerCase();
-                            break;
-                        }
-
-                        String lName;
-                        while (true) {
-                            System.out.print("Enter Last Name: ");
-                            lName = input.nextLine().trim();
-                            if (lName.isEmpty()) {
-                                System.out.println("Last Name cannot be empty. Try again.\n");
-                                continue;
-                            } else if (!lName.matches("[A-Za-z]+")) {
-                                System.out.println("Last Name must only contain letters. Try again.\n");
-                                continue;
-                            }
-                            lName = lName.substring(0, 1).toUpperCase() + lName.substring(1).toLowerCase();
-                            break;
-                        }
-
-                        String contact;
-                        while (true) {
-                            System.out.print("Enter Contact Number (+63 9XX-XXX-XXXX): ");
-                            contact = input.nextLine().trim();
-                            if (contact.isEmpty()) {
-                                System.out.println("Contact Number cannot be empty. Try again.\n");
-                                continue;
-                            } else if (!contact.matches("\\+63 9\\d{2}-\\d{3}-\\d{4}")) {
-                                System.out.println("Invalid format. Please use +63 9XX-XXX-XXXX.\n");
-                                continue;
-                            }
-                            break;
-                        }
-
-                        // new user creation with sequential ID
-                        String newUserID = generateNextUserID();
-                        User newUser = new Applicant(contact, fName, lName, newPassword, newUserID,
-                                newUsername, Role.APPLICANT);
-
-                        DatabaseManagement.addUser(newUser);
-                        System.out.println("\nAccount created successfully for " + newUser.getFullName() + "!\n");
-                        System.out.println("=============================================================\n\n");
-
-                    } catch (Exception e) {
-                        System.out.println("\nError creating account: " + e.getMessage());
-                        System.out.println("============================================================\n\n");
-                    }
+                case 1:
+                    registerNewAccount();
                     break;
-                case 2: // log in
-                    System.out.println("\n\n======================== Log In ============================");
 
-                    boolean loggedIn = false; // bool to check login status
-                    int loginAttempts = 0;
-                    while (!loggedIn && loginAttempts < 3) {
-                        try {
-                            System.out.print("\nEnter Username (or type 'exit' to cancel): ");
-                            String usernameInput = input.nextLine().trim();
-
-                            if (usernameInput.equalsIgnoreCase("exit")) {
-                                System.out.println("\nReturning to main menu...\n");
-                                System.out.println("============================================================\n\n");
-                                break;
-                            }
-
-                            if (usernameInput.isEmpty()) {
-                                throw new IllegalArgumentException("Username cannot be empty.");
-                            }
-
-                            System.out.print("Enter Password: ");
-                            String passwordInput = input.nextLine().trim();
-
-                            if (passwordInput.isEmpty()) {
-                                throw new IllegalArgumentException("Password cannot be empty.");
-                            }
-
-                            boolean found = false;
-                            for (User u : users) {
-                                if (u.verifyLogin(usernameInput, passwordInput)) {
-                                    currentUser = u;
-                                    System.out.println("\nLogin successful! Welcome, " + u.getFullName() + "!\n");
-                                    System.out.println(
-                                            "============================================================\n\n");
-                                    found = true;
-                                    loggedIn = true;
-                                    break;
-                                }
-                            }
-
-                            if (!found) {
-                                loginAttempts++;
-                                System.out.println("\nInvalid username or password. Please try again.\n");
-                                System.out.println("Attempts remaining: " + (3 - loginAttempts) + "\n");
-                                System.out.println("============================================================\n\n");
-                            }
-
-                        } catch (IllegalArgumentException e) {
-                            System.out.println("\nError: " + e.getMessage());
-                            System.out.println("Please try again.\n");
-                            System.out.println("============================================================\n\n");
-                        } catch (Exception e) {
-                            System.out.println("\nUnexpected error during login: " + e.getMessage());
-                            System.out.println("Please try again.\n");
-                            System.out.println("============================================================\n\n");
-                        }
-                    }
-
-                    if (!loggedIn && loginAttempts >= 3) {
-                        System.out.println("\nToo many failed login attempts. Returning to main menu.\n");
-                        System.out.println("============================================================\n\n");
-                    }
+                case 2:
+                    currentUser = loginUser();
                     break;
-                case 3: // log out (now handled after role menu)
-                case 5: // display profile (handled in role menu)
-                    System.out.println(
-                            "This option is only available in your role menu. Please return from your role menu first.");
-                    break;
-                case 4: // exit
+
+                case 3:
                     System.out.println("\nExiting the application... Goodbye!");
-                    input.close();
-                    System.out.println("\n============================================================");
+                    System.out.println("----------------------------------------------------------");
                     return;
-                default:
-                    System.out.println("Invalid input! Please enter a number between 1-5.");
-                    System.out.println("\n============================================================\n\n");
             }
         }
+    }
+
+    private void registerNewAccount() {
+        System.out.println("----------------------------------------------------------");
+        System.out.println("                     Register                             ");
+        System.out.println("----------------------------------------------------------");
+
+        try {
+            // Get username with uniqueness check
+            String newUsername = getUniqueUsername();
+            if (newUsername == null) return; // User cancelled
+
+            // Get password
+            String newPassword = InputValidator.getNonEmptyString("Enter Password");
+            if (newPassword == null) return; // User cancelled
+
+            // Get first name
+            String firstName = InputValidator.getValidName("Enter First Name");
+            if (firstName == null) return; // User cancelled
+
+            // Get last name
+            String lastName = InputValidator.getValidName("Enter Last Name");
+            if (lastName == null) return; // User cancelled
+
+            // Get contact number
+            String contact = InputValidator.getValidPHContactNumber("Enter Contact Number");
+            if (contact == null) return; // User cancelled
+
+            // UPDATED: Generate ID with APPLICANT role
+            String newUserID = generateNextUserID(Role.APPLICANT);
+            User newUser = new Applicant(contact, firstName, lastName, newPassword, newUserID,
+                    newUsername, Role.APPLICANT);
+
+            DatabaseManagement.addUser(newUser);
+            users.add(newUser); // Add to linked list
+            System.out.println("\nAccount created successfully for " + newUser.getFullName() + "!\n");
+            System.out.println("Your Applicant ID: " + newUserID);
+            System.out.println("----------------------------------------------------------");
+
+        } catch (Exception e) {
+            System.out.println("\nError creating account: " + e.getMessage());
+            System.out.println("----------------------------------------------------------");
+        }
+    }
+
+    private String getUniqueUsername() {
+        String username;
+        while (true) {
+            username = InputValidator.getNonEmptyString("Enter Username");
+            if (username == null) return null; // User cancelled
+
+            // Check for duplicate username
+            boolean duplicate = false;
+            for (User u : users) {
+                if (u.getUsername().equals(username)) {
+                    duplicate = true;
+                    break;
+                }
+            }
+
+            if (duplicate) {
+                System.out.println("This username already exists! Please use a different username.\n");
+            } else {
+                return username;
+            }
+        }
+    }
+
+    private User loginUser() {
+        System.out.println("----------------------------------------------------------");
+        System.out.println("                     Log In                               ");
+        System.out.println("----------------------------------------------------------");
+
+        int loginAttempts = 0;
+        while (loginAttempts < 3) {
+            // Get username
+            String usernameInput = InputValidator.getNonEmptyString("Enter Username");
+            if (usernameInput == null) {
+                System.out.println("\nReturning to main menu...\n");
+                System.out.println("----------------------------------------------------------");
+                return null; // User cancelled
+            }
+
+            // Get password
+            String passwordInput = InputValidator.getNonEmptyString("Enter Password");
+            if (passwordInput == null) {
+                System.out.println("\nReturning to main menu...\n");
+                System.out.println("----------------------------------------------------------");
+                return null; // User cancelled
+            }
+
+            // Verify login credentials
+            for (User u : users) {
+                if (u.verifyLogin(usernameInput, passwordInput)) {
+                    System.out.println("\nLogin successful! Welcome, " + u.getFullName() + "!\n");
+                    System.out.println("----------------------------------------------------------");
+                    return u;
+                }
+            }
+
+            loginAttempts++;
+            System.out.println("\nInvalid username or password. Please try again.\n");
+            System.out.println("Attempts remaining: " + (3 - loginAttempts) + "\n");
+            System.out.println("----------------------------------------------------------");
+        }
+
+        System.out.println("\nToo many failed login attempts. Returning to main menu.\n");
+        System.out.println("----------------------------------------------------------");
+        return null;
     }
 }

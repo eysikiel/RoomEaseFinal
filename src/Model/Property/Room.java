@@ -98,7 +98,7 @@ public class Room {
     }
 
     public void displayInfo() {
-        System.out.println("───────────────────────────────────────────────");
+        System.out.println("-------------------------------------------------");
         System.out.println("Room ID       : " + roomID);
         System.out.println("Room Number   : " + roomNumber);
         System.out.println("Room Type     : " + (type != null ? type : "N/A"));
@@ -120,7 +120,7 @@ public class Room {
 
         System.out.println("Status        : " + (status != null ? status : "Vacant"));
         System.out.println("Pricing Type  : " + (pricingType != null ? pricingType : "Per_Head"));
-        System.out.println("───────────────────────────────────────────────");
+        System.out.println("-------------------------------------------------");
     }
 
     public void updateInfo(Room updatedRoom) {

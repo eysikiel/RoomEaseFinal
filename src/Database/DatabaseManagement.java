@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,24 +19,30 @@ import Model.User.Applicant;
 import Model.User.Landlord;
 import Model.User.Tenant;
 import Model.User.User;
+import Model.Property.Room;
+import Enums.RoomPricingType;
+import Enums.RoomStatus;
+import Enums.RoomType;
 
 public class DatabaseManagement {
 
     private static final String RELATIVE_USERS_PATH = "src" + File.separator + "Data" + File.separator + "Users.json";
+    private static final String RELATIVE_ROOMS_PATH = "src" + File.separator + "Data" + File.separator + "Rooms.json";
 
     /**
-     * Initialize database: ensure file exists and load users into memory.
+     * Initialize database: ensure files exist and load data into memory.
      */
     public static void init() {
         try {
-            ensureFileExists();
+            ensureUsersFileExists();
+            ensureRoomsFileExists();
             loadUsers();
         } catch (Exception e) {
             System.out.println("Warning: failed to initialize database: " + e.getMessage());
         }
     }
 
-    private static void ensureFileExists() throws IOException {
+    private static void ensureUsersFileExists() throws IOException {
         File f = getUsersFile();
         File parent = f.getParentFile();
         if (parent != null && !parent.exists()) {
@@ -49,6 +56,165 @@ public class DatabaseManagement {
         }
     }
 
+    private static void ensureRoomsFileExists() throws IOException {
+        File f = getRoomsFile();
+        File parent = f.getParentFile();
+        if (parent != null && !parent.exists()) {
+            parent.mkdirs();
+        }
+        if (!f.exists()) {
+            try (BufferedWriter bw = new BufferedWriter(
+                    new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8))) {
+                bw.write("{\n  \"rooms\": []\n}");
+            }
+        }
+    }
+
+    // ==================== ROOM MANAGEMENT METHODS ====================
+
+    /**
+     * Load rooms from `src/Data/Rooms.json`
+     */
+    public static LinkedList<Room> getRooms() {
+        LinkedList<Room> rooms = new LinkedList<>();
+        File f = getRoomsFile();
+        if (!f.exists()) {
+            try {
+                ensureRoomsFileExists();
+            } catch (IOException e) {
+                System.out.println("Error creating rooms file: " + e.getMessage());
+                return rooms;
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line).append('\n');
+            }
+        } catch (Exception e) {
+            System.out.println("Error reading rooms file: " + e.getMessage());
+            return rooms;
+        }
+
+        String content = sb.toString();
+        // find the rooms array
+        int start = content.indexOf('[');
+        int end = content.lastIndexOf(']');
+        if (start == -1 || end == -1 || end <= start) {
+            return rooms; // nothing to load
+        }
+
+        String array = content.substring(start + 1, end).trim();
+        if (array.isEmpty()) {
+            return rooms;
+        }
+
+        // split objects by '},' boundary but keep braces
+        List<String> objects = splitJsonObjects(array);
+
+        for (String obj : objects) {
+            try {
+                String roomID = extractString(obj, "roomID");
+                String roomNumber = extractString(obj, "roomNumber");
+                String roomTypeStr = extractString(obj, "roomType");
+                double price = extractDouble(obj, "price", 0.0);
+                int capacity = extractInt(obj, "capacity", 1);
+                String pricingTypeStr = extractString(obj, "pricingType");
+                String statusStr = extractString(obj, "status");
+
+                // Parse enums
+                RoomType roomType = RoomType.Single;
+                if (roomTypeStr != null) {
+                    try {
+                        roomType = RoomType.valueOf(roomTypeStr);
+                    } catch (Exception ignored) {}
+                }
+
+                RoomPricingType pricingType = RoomPricingType.per_head;
+                if (pricingTypeStr != null) {
+                    try {
+                        pricingType = RoomPricingType.valueOf(pricingTypeStr);
+                    } catch (Exception ignored) {}
+                }
+
+                RoomStatus status = RoomStatus.Vacant;
+                if (statusStr != null) {
+                    try {
+                        status = RoomStatus.valueOf(statusStr);
+                    } catch (Exception ignored) {}
+                }
+
+                Room room = new Room(capacity, price, pricingType, roomID, roomNumber, status, roomType);
+                rooms.add(room);
+
+            } catch (Exception e) {
+                System.out.println("Error parsing room object: " + e.getMessage());
+            }
+        }
+
+        return rooms;
+    }
+
+    /**
+     * Save rooms to `src/Data/Rooms.json`
+     */
+    public static void saveRooms(LinkedList<Room> rooms) {
+        File f = getRoomsFile();
+        try {
+            ensureRoomsFileExists();
+        } catch (IOException e) {
+            System.out.println("Error ensuring rooms file: " + e.getMessage());
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\n  \"rooms\": [\n");
+
+        for (int i = 0; i < rooms.size(); i++) {
+            Room room = rooms.get(i);
+            sb.append("    {");
+            sb.append("\"roomID\": \"").append(escape(room.getRoomID())).append("\",");
+            sb.append(" \"roomNumber\": \"").append(escape(room.getRoomNumber())).append("\",");
+            sb.append(" \"roomType\": \"").append(room.getType() != null ? room.getType().name() : "Single").append("\",");
+            sb.append(" \"price\": ").append(room.getPrice()).append(",");
+            sb.append(" \"capacity\": ").append(room.getCapacity()).append(",");
+            sb.append(" \"pricingType\": \"").append(room.getPricingType() != null ? room.getPricingType().name() : "per_head").append("\",");
+            sb.append(" \"status\": \"").append(room.getStatus() != null ? room.getStatus().name() : "Vacant").append("\"");
+            sb.append(" }");
+            if (i < rooms.size() - 1)
+                sb.append(",\n");
+            else
+                sb.append('\n');
+        }
+
+        sb.append("  ]\n}");
+
+        try (BufferedWriter bw = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(f, false), StandardCharsets.UTF_8))) {
+            bw.write(sb.toString());
+        } catch (Exception e) {
+            System.out.println("Error writing rooms file: " + e.getMessage());
+        }
+    }
+
+    private static int extractInt(String json, String key, int defaultVal) {
+        Pattern p = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:\\s*([0-9]+)");
+        Matcher m = p.matcher(json);
+        if (m.find()) {
+            try {
+                return Integer.parseInt(m.group(1));
+            } catch (Exception e) {
+                return defaultVal;
+            }
+        }
+        return defaultVal;
+    }
+
+    // ==================== USER MANAGEMENT METHODS (existing) ====================
+
     /**
      * Load users from `src/Data/Users.json` into User.getUsers()
      */
@@ -56,7 +222,7 @@ public class DatabaseManagement {
         File f = getUsersFile();
         if (!f.exists()) {
             try {
-                ensureFileExists();
+                ensureUsersFileExists();
             } catch (IOException e) {
                 System.out.println("Error creating users file: " + e.getMessage());
                 return;
@@ -184,7 +350,7 @@ public class DatabaseManagement {
     public static void saveUsers() {
         File f = getUsersFile();
         try {
-            ensureFileExists();
+            ensureUsersFileExists();
         } catch (IOException e) {
             System.out.println("Error ensuring users file: " + e.getMessage());
             return;
@@ -236,7 +402,7 @@ public class DatabaseManagement {
         return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
     }
 
-    private static File getUsersFile() { //! rework this later, not really optimized i think
+    private static File getUsersFile() {
         try {
             File cwd = new File(".").getCanonicalFile();
             File dir = cwd;
@@ -254,6 +420,24 @@ public class DatabaseManagement {
         return new File(RELATIVE_USERS_PATH);
     }
 
+    private static File getRoomsFile() {
+        try {
+            File cwd = new File(".").getCanonicalFile();
+            File dir = cwd;
+            // search upward for a folder containing `src`
+            for (int i = 0; i < 10 && dir != null; i++) {
+                File src = new File(dir, "src");
+                if (src.exists() && src.isDirectory()) {
+                    return new File(src, "Data" + File.separator + "Rooms.json");
+                }
+                dir = dir.getParentFile();
+            }
+        } catch (IOException ignored) {
+        }
+        // fallback to relative path
+        return new File(RELATIVE_ROOMS_PATH);
+    }
+
     /**
      * Add a user to memory and persist immediately.
      */
@@ -261,5 +445,4 @@ public class DatabaseManagement {
         User.getUsers().add(u);
         saveUsers();
     }
-
 }

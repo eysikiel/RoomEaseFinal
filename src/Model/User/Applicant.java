@@ -1,13 +1,12 @@
 package Model.User;
 
+import Enums.RequestStatus;
+import Model.Property.Room;
+import Model.Request.ViewingRequest;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Scanner;
-
-import Enums.RequestStatus;
-import Model.Property.Room;
-import Model.Request.ViewingRequest;
 
 public class Applicant extends User {
 
@@ -21,6 +20,7 @@ public class Applicant extends User {
             String username, Role role) {
         super(contactNumber, firstName, lastName, password, userID, username, role);
         this.applicationStatus = "None";
+        this.roomList = new LinkedList<>();
         this.viewingRequests = new LinkedList<>();
         this.input = new Scanner(System.in);
     }
@@ -69,7 +69,7 @@ public class Applicant extends User {
     }
 
     public void displayRooms(LinkedList<Room> list) {
-        NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.of("en", "PH")); // ₱ format
+        NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("en", "PH"));
         nf.setMaximumFractionDigits(0);
 
         int num = 1;

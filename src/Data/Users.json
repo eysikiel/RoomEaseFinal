@@ -1,31 +1,9 @@
 {
   "users": [
-    {
-      "userID": "USR01",
-      "username": "lyka",
-      "password": "lykalamparero",
-      "firstName": "Lyka",
-      "lastName": "Lamparero",
-      "contactNumber": "09561620716",
-      "role": "LANDLORD"
-    },
-    {
-      "userID": "USR02",
-      "username": "yer",
-      "password": "yerrr",
-      "firstName": "Justin",
-      "lastName": "Lamparero",
-      "contactNumber": "+63 912-345-6789",
-      "role": "APPLICANT"
-    },
-    {
-      "userID": "USR03",
-      "username": "hai",
-      "password": "haiii",
-      "firstName": "Adsf",
-      "lastName": "Adsf",
-      "contactNumber": "+63 911-111-1111",
-      "role": "APPLICANT"
-    }
+    {"userID": "LND001", "username": "lyka", "password": "lykalamparero", "firstName": "Kate", "lastName": "Coach", "contactNumber": "+63 912-345-6789", "role": "LANDLORD" },
+    {"userID": "APT001", "username": "johndoe", "password": "password123", "firstName": "John", "lastName": "Doe", "contactNumber": "+63 923-456-7890", "role": "APPLICANT" },
+    {"userID": "LND001", "username": "lyka", "password": "lykalamparero", "firstName": "Kate", "lastName": "Coach", "contactNumber": "+63 912-345-6789", "role": "LANDLORD" },
+    {"userID": "APT001", "username": "johndoe", "password": "password123", "firstName": "John", "lastName": "Doe", "contactNumber": "+63 923-456-7890", "role": "APPLICANT" },
+    {"userID": "APT002", "username": "kyla", "password": "laway", "firstName": "Kyla", "lastName": "Lamparero", "contactNumber": "+63 995-643-7724", "role": "APPLICANT" }
   ]
 }

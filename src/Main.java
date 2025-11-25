@@ -1,5 +1,5 @@
-import Model.User.Landlord;
 import Model.User.User;
+import Model.User.Landlord;
 import Database.DatabaseManagement;
 
 public class Main {
@@ -7,8 +7,8 @@ public class Main {
         // initialize JSON-backed user database
         DatabaseManagement.init();
 
-        // if there are no users loaded, add a default landlord for first run
         if (User.getUsers().isEmpty()) {
+            // Create landlord using 7-parameter constructor
             User landlord = new Landlord("09561620716", "Lyka", "Lamparero", "lykalamparero", "USR01", "lyka",
                     User.Role.LANDLORD);
             User.getUsers().add(landlord);
