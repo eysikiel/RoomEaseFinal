@@ -13,7 +13,7 @@ public class TenantManagement {
     public TenantManagement() {
     }
 
-    public void  displayMenu() {
+    public void displayMenu() {
         int choice;
         do {
             System.out.println("-------------------------------------------------");
@@ -155,7 +155,7 @@ public class TenantManagement {
                 return;
             }
 
-            String contactNumber = InputValidator.getValidPHContactNumber("Enter Contact Number");
+            String contactNumber = InputValidator.getValidPHContactNumber("Enter Contact Number (+63 9XX-XXX-XXXX)  ");
             if (contactNumber == null) {
                 return;
             }
@@ -179,8 +179,8 @@ public class TenantManagement {
                     null, // contract null - will be created in ContractManagement
                     initialBalance, emergencyContact, idNumber);
 
-            // Add to system
-            User.getUsers().add(newTenant);
+            // Add to system (DatabaseManagement.addUser will add to in-memory list and
+            // persist)
             DatabaseManagement.addUser(newTenant);
 
             System.out.println("\nTenant registered successfully!");

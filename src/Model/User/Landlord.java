@@ -4,12 +4,14 @@ import Utilities.InputValidator;
 import Managements.RoomManagement;
 import Managements.TenantManagement;
 import Database.DatabaseManagement;
+import Managements.ContractManagement;
 
 public class Landlord extends User {
 
     private RoomManagement roomManagement;
     private TenantManagement tenantManagement; // Add this
     private DatabaseManagement databaseManager;
+    private ContractManagement contractManager;
 
     // 7-parameter constructor
     public Landlord(String contactNumber, String firstName, String lastName, String password, String userID,
@@ -18,6 +20,7 @@ public class Landlord extends User {
         this.databaseManager = new DatabaseManagement();
         this.roomManagement = new RoomManagement();
         this.tenantManagement = new TenantManagement(); // Initialize tenant management
+        this.contractManager = new ContractManagement();
     }
 
     // Getters and Setters
@@ -31,6 +34,10 @@ public class Landlord extends User {
 
     public TenantManagement getTenantManagement() {
         return this.tenantManagement;
+    }
+
+    public ContractManagement getContractManagement() {
+        return this.contractManager;
     }
 
     public void setRoomManagement(RoomManagement roomManagement) {
@@ -100,7 +107,7 @@ public class Landlord extends User {
 
     public void accessContractManagement() {
         System.out.println("Opening Contract Management...");
-        System.out.println("Contract Management feature coming soon!");
+        getContractManagement().displayMenu();
     }
 
     @Override

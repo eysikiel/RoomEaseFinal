@@ -16,9 +16,24 @@ import java.util.LinkedList;
 public class ContractManagement {
     // DatabaseManagement is static-style; no instance required here
     private LinkedList<Contract> contractHistory;
+    // in-memory list of all persisted contracts
+    private LinkedList<Contract> contracts;
 
     public ContractManagement() {
         this.contractHistory = new LinkedList<>();
+        // load persisted contracts and initialize history
+        this.contracts = DatabaseManagement.getContracts();
+        for (Contract c : this.contracts) {
+            if (c.getContractStatus() != Enums.ContractStatus.Active) {
+                this.contractHistory.add(c);
+            } else {
+                // attach active contract to tenant in-memory if not already
+                Tenant t = c.getTenantID();
+                if (t != null && t.getContract() == null) {
+                    t.setContract(c);
+                }
+            }
+        }
     }
 
     public void displayMenu() {
@@ -134,19 +149,23 @@ public class ContractManagement {
         if (deposit == -1)
             return;
 
-        System.out.print("Enter Start Date (YYYY-MM-DD): ");
-        LocalDate startDate = InputValidator.getValidDate("Enter Start Date (YYYY-MM-DD): ");
+        LocalDate startDate = InputValidator.getValidDate("Enter Start Date");
         if (startDate == null)
             return;
 
-        System.out.print("Enter End Date (YYYY-MM-DD): ");
-        LocalDate endDate = InputValidator.getValidDate("Enter End Date (YYYY-MM-DD): ");
+        LocalDate endDate = InputValidator.getValidDate("Enter End Date");
         if (endDate == null)
             return;
 
         // Convert to java.util.Date
         Date start = java.sql.Date.valueOf(startDate);
         Date end = java.sql.Date.valueOf(endDate);
+
+        // basic date validation
+        if (endDate.isBefore(startDate) || endDate.isEqual(startDate)) {
+            System.out.println("End date must be after start date.");
+            return;
+        }
 
         // Create contract using tenant and room objects
         String contractID = "CNT" + System.currentTimeMillis();
@@ -161,6 +180,12 @@ public class ContractManagement {
             }
         }
 
+        // extra validation: ensure room is vacant
+        if (tenantRoom != null && tenantRoom.getStatus() == RoomStatus.Occupied) {
+            System.out.println("Selected room is not vacant. Cannot create contract.");
+            return;
+        }
+
         Contract newContract = new Contract(contractID, selectedTenant, tenantRoom, start, end, monthlyRent,
                 deposit, ContractStatus.Active);
 
@@ -169,6 +194,17 @@ public class ContractManagement {
 
         // Update tenant balance with deposit
         selectedTenant.setBalance(selectedTenant.getBalance() + deposit);
+
+        // Mark room as occupied
+        if (tenantRoom != null) {
+            tenantRoom.setStatus(RoomStatus.Occupied);
+            DatabaseManagement.saveRooms(DatabaseManagement.getRooms());
+        }
+
+        // persist contract to disk
+        LinkedList<Contract> persisted = DatabaseManagement.getContracts();
+        persisted.add(newContract);
+        DatabaseManagement.saveContracts(persisted);
 
         // Save changes
         DatabaseManagement.saveUsers();
@@ -207,12 +243,9 @@ public class ContractManagement {
 
         Contract selectedContract = activeContracts.get(contractChoice - 1);
 
-        // Get new end date
-        System.out.print("Enter new End Date (YYYY-MM-DD): ");
-
         // Ask about rent adjustment
-        Boolean adjustRent = InputValidator.getConfirmation("Do you want to adjust the monthly rent?");
-        if (adjustRent != null && adjustRent) {
+        Boolean doAdjustRent = InputValidator.getConfirmation("Do you want to adjust the monthly rent?");
+        if (doAdjustRent != null && doAdjustRent) {
             double newRent = InputValidator.getValidDouble(1, 100000, "Enter new monthly rent");
             if (newRent != -1) {
                 selectedContract.setMonthlyRent(newRent);
@@ -222,12 +255,24 @@ public class ContractManagement {
         LocalDate newEndDate = InputValidator.getValidDate("Enter new End Date");
         if (newEndDate == null)
             return;
-        selectedContract.setEndDate(java.sql.Date.valueOf(newEndDate));
-
-        // Renew contract (convert to java.util.Date)
+        // validate new end date must be after current
+        java.util.Date existingEnd = selectedContract.getEndDate();
+        if (existingEnd != null && !java.sql.Date.valueOf(newEndDate).after(existingEnd)) {
+            System.out.println("New end date must be after the current end date.");
+            return;
+        }
         selectedContract.setEndDate(java.sql.Date.valueOf(newEndDate));
 
         // Save changes
+        // update persistent store
+        LinkedList<Contract> persistedRenew = DatabaseManagement.getContracts();
+        for (int i = 0; i < persistedRenew.size(); i++) {
+            if (persistedRenew.get(i).getContractID().equals(selectedContract.getContractID())) {
+                persistedRenew.set(i, selectedContract);
+                break;
+            }
+        }
+        DatabaseManagement.saveContracts(persistedRenew);
         DatabaseManagement.saveUsers();
 
         System.out.println("Contract renewed successfully!");
@@ -288,7 +333,16 @@ public class ContractManagement {
             tenant.setContract(null);
         }
 
-        // Save changes
+        // persist updated contract list
+        LinkedList<Contract> persisted = DatabaseManagement.getContracts();
+        for (int i = 0; i < persisted.size(); i++) {
+            if (persisted.get(i).getContractID().equals(selectedContract.getContractID())) {
+                persisted.set(i, selectedContract);
+                break;
+            }
+        }
+        DatabaseManagement.saveContracts(persisted);
+
         DatabaseManagement.saveUsers();
         DatabaseManagement.saveRooms(DatabaseManagement.getRooms());
 

@@ -108,7 +108,7 @@ public abstract class User {
             default:
                 prefix = "USR";
         }
-        
+
         int nextID = 1;
         boolean found;
 
@@ -177,7 +177,7 @@ public abstract class User {
             System.out.println("[2] Log In");
             System.out.println("[3] Exit");
             System.out.println("----------------------------------------------------------");
-            
+
             // THEN GET THE CHOICE (NO MENU TITLE PARAMETER)
             int choice = InputValidator.getMenuChoice(3);
             if (choice == -1) {
@@ -209,31 +209,35 @@ public abstract class User {
         try {
             // Get username with uniqueness check
             String newUsername = getUniqueUsername();
-            if (newUsername == null) return; // User cancelled
+            if (newUsername == null)
+                return; // User cancelled
 
             // Get password
             String newPassword = InputValidator.getNonEmptyString("Enter Password");
-            if (newPassword == null) return; // User cancelled
+            if (newPassword == null)
+                return; // User cancelled
 
             // Get first name
             String firstName = InputValidator.getValidName("Enter First Name");
-            if (firstName == null) return; // User cancelled
+            if (firstName == null)
+                return; // User cancelled
 
             // Get last name
             String lastName = InputValidator.getValidName("Enter Last Name");
-            if (lastName == null) return; // User cancelled
+            if (lastName == null)
+                return; // User cancelled
 
             // Get contact number
             String contact = InputValidator.getValidPHContactNumber("Enter Contact Number");
-            if (contact == null) return; // User cancelled
+            if (contact == null)
+                return; // User cancelled
 
             // UPDATED: Generate ID with APPLICANT role
             String newUserID = generateNextUserID(Role.APPLICANT);
             User newUser = new Applicant(contact, firstName, lastName, newPassword, newUserID,
                     newUsername, Role.APPLICANT);
 
-            DatabaseManagement.addUser(newUser);
-            users.add(newUser); // Add to linked list
+            DatabaseManagement.addUser(newUser); // addUser persists and adds to in-memory list
             System.out.println("\nAccount created successfully for " + newUser.getFullName() + "!\n");
             System.out.println("Your Applicant ID: " + newUserID);
             System.out.println("----------------------------------------------------------");
@@ -248,7 +252,8 @@ public abstract class User {
         String username;
         while (true) {
             username = InputValidator.getNonEmptyString("Enter Username");
-            if (username == null) return null; // User cancelled
+            if (username == null)
+                return null; // User cancelled
 
             // Check for duplicate username
             boolean duplicate = false;
