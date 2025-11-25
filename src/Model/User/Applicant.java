@@ -69,7 +69,7 @@ public class Applicant extends User {
     }
 
     public void displayRooms(LinkedList<Room> list) {
-        NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("en", "PH"));
+        NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("en-PH"));
         nf.setMaximumFractionDigits(0);
 
         int num = 1;

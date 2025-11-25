@@ -1,10 +1,14 @@
 package Utilities;
 
+import java.time.LocalDate;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class InputValidator {
     private static Scanner input = new Scanner(System.in);
+    // expose a public scanner alias for other classes that referenced
+    // InputValidator.scanner
+    public static Scanner scanner = input;
 
     // Validate integer input within range with cancel option
     public static int getValidInt(int min, int max, String prompt) {
@@ -14,15 +18,16 @@ public class InputValidator {
             try {
                 userInput = input.nextInt();
                 input.nextLine(); // consume newline
-                
+
                 if (userInput == 0) {
                     return -1; // Cancel signal
                 }
-                
+
                 if (userInput >= min && userInput <= max) {
                     return userInput;
                 } else {
-                    System.out.printf("Invalid input. Please enter a number between %d and %d, or 0 to cancel.\n", min, max);
+                    System.out.printf("Invalid input. Please enter a number between %d and %d, or 0 to cancel.\n", min,
+                            max);
                 }
             } catch (Exception e) {
                 System.out.println("Invalid input. Please enter a number only, or 0 to cancel.");
@@ -39,15 +44,16 @@ public class InputValidator {
             try {
                 userInput = input.nextDouble();
                 input.nextLine(); // consume newline
-                
+
                 if (userInput == 0) {
                     return -1; // Cancel signal
                 }
-                
+
                 if (userInput >= min && userInput <= max) {
                     return userInput;
                 } else {
-                    System.out.printf("Invalid input. Please enter a number between %.2f and %.2f, or 0 to cancel.\n", min, max);
+                    System.out.printf("Invalid input. Please enter a number between %.2f and %.2f, or 0 to cancel.\n",
+                            min, max);
                 }
             } catch (Exception e) {
                 System.out.println("Invalid input. Please enter a valid number, or 0 to cancel.");
@@ -62,11 +68,11 @@ public class InputValidator {
         do {
             System.out.print(prompt + " (Enter 'cancel' to go back): ");
             userInput = input.nextLine().trim();
-            
+
             if (userInput.equalsIgnoreCase("cancel")) {
                 return null; // Cancel signal
             }
-            
+
             if (!userInput.isEmpty()) {
                 return userInput;
             } else {
@@ -80,15 +86,15 @@ public class InputValidator {
         String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
         Pattern pattern = Pattern.compile(emailRegex);
         String email;
-        
+
         do {
             System.out.print(prompt + " (Enter 'cancel' to go back): ");
             email = input.nextLine().trim();
-            
+
             if (email.equalsIgnoreCase("cancel")) {
                 return null; // Cancel signal
             }
-            
+
             if (pattern.matcher(email).matches()) {
                 return email;
             } else {
@@ -103,11 +109,11 @@ public class InputValidator {
         do {
             System.out.print(prompt + " (Enter 'cancel' to go back): ");
             phone = input.nextLine().trim();
-            
+
             if (phone.equalsIgnoreCase("cancel")) {
                 return null; // Cancel signal
             }
-            
+
             // Basic validation - at least 10 digits
             if (phone.matches("\\d{10,}")) {
                 return phone;
@@ -123,11 +129,11 @@ public class InputValidator {
         do {
             System.out.print(prompt + " (Enter 'cancel' to go back): ");
             contact = input.nextLine().trim();
-            
+
             if (contact.equalsIgnoreCase("cancel")) {
                 return null;
             }
-            
+
             if (contact.matches("\\+63 9\\d{2}-\\d{3}-\\d{4}")) {
                 return contact;
             } else {
@@ -142,11 +148,11 @@ public class InputValidator {
         do {
             System.out.print(prompt + " (y/n/cancel): ");
             userInput = input.nextLine().trim().toLowerCase();
-            
+
             if (userInput.equals("cancel")) {
                 return null; // Cancel signal
             }
-            
+
             if (userInput.equals("y") || userInput.equals("yes")) {
                 return true;
             } else if (userInput.equals("n") || userInput.equals("no")) {
@@ -165,15 +171,16 @@ public class InputValidator {
             try {
                 choice = input.nextInt();
                 input.nextLine(); // consume newline
-                
+
                 if (choice == 0) {
                     return -1; // Cancel signal
                 }
-                
+
                 if (choice >= 1 && choice <= maxOption) {
                     return choice;
                 } else {
-                    System.out.println("Invalid input. Please enter a number between 1 and " + maxOption + ", or 0 to cancel.");
+                    System.out.println(
+                            "Invalid input. Please enter a number between 1 and " + maxOption + ", or 0 to cancel.");
                 }
             } catch (Exception e) {
                 System.out.println("Invalid input. Please enter a number only, or 0 to cancel.");
@@ -188,15 +195,16 @@ public class InputValidator {
         do {
             System.out.print(prompt + " (Enter 'cancel' to go back): ");
             userInput = input.nextLine().trim();
-            
+
             if (userInput.equalsIgnoreCase("cancel")) {
                 return null; // Cancel signal
             }
-            
+
             if (userInput.length() >= minLength) {
                 return userInput;
             } else {
-                System.out.println("Input must be at least " + minLength + " characters long. Please try again or enter 'cancel' to go back.");
+                System.out.println("Input must be at least " + minLength
+                        + " characters long. Please try again or enter 'cancel' to go back.");
             }
         } while (true);
     }
@@ -209,11 +217,11 @@ public class InputValidator {
             try {
                 userInput = input.nextInt();
                 input.nextLine(); // consume newline
-                
+
                 if (userInput == 0) {
                     return -1; // Cancel signal
                 }
-                
+
                 if (userInput > 0) {
                     return userInput;
                 } else {
@@ -232,11 +240,11 @@ public class InputValidator {
         do {
             System.out.print(prompt + " (Enter 'cancel' to go back): ");
             name = input.nextLine().trim();
-            
+
             if (name.equalsIgnoreCase("cancel")) {
                 return null;
             }
-            
+
             if (name.isEmpty()) {
                 System.out.println("Name cannot be empty. Please try again.\n");
             } else if (!name.matches("[A-Za-z ]+")) {
@@ -248,12 +256,37 @@ public class InputValidator {
                 for (String word : words) {
                     if (!word.isEmpty()) {
                         capitalized.append(word.substring(0, 1).toUpperCase())
-                                  .append(word.substring(1).toLowerCase())
-                                  .append(" ");
+                                .append(word.substring(1).toLowerCase())
+                                .append(" ");
                     }
                 }
                 return capitalized.toString().trim();
             }
         } while (true);
     }
+
+    public static void waitForUserInput() {
+        System.out.print("Press Enter to continue...");
+        input.nextLine();
+    }
+
+    // Validate date input with cancel option
+public static LocalDate getValidDate(String prompt) {
+    String dateStr;
+    do {
+        System.out.print(prompt + " (YYYY-MM-DD, or 'cancel' to go back): ");
+        dateStr = input.nextLine().trim();
+
+        if (dateStr.equalsIgnoreCase("cancel")) {
+            return null; // Cancel signal
+        }
+
+        try {
+            return LocalDate.parse(dateStr);
+        } catch (Exception e) {
+            System.out.println("Invalid date format. Please use YYYY-MM-DD format.");
+        }
+    } while (true);
+}
+
 }

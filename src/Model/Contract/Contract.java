@@ -18,6 +18,7 @@ public class Contract {
     private double monthlyRent;
     private double deposit;
     private ContractStatus contractStatus;
+    private String terminationReason;
 
     public Contract(String contractID, Tenant tenantID, Room roomID, Date startDate, Date endDate, double monthlyRent,
             double deposit, ContractStatus contractStatus) {
@@ -89,6 +90,19 @@ public class Contract {
 
     public void setDeposit(double deposit) {
         this.deposit = deposit;
+    }
+
+    // backward compatible alias used by some management classes
+    public void setSecurityDeposit(double deposit) {
+        setDeposit(deposit);
+    }
+
+    public String getTerminationReason() {
+        return terminationReason;
+    }
+
+    public void setTerminationReason(String terminationReason) {
+        this.terminationReason = terminationReason;
     }
 
     public void setContractStatus(ContractStatus contractStatus) {

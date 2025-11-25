@@ -130,21 +130,24 @@ public class DatabaseManagement {
                 if (roomTypeStr != null) {
                     try {
                         roomType = RoomType.valueOf(roomTypeStr);
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                    }
                 }
 
                 RoomPricingType pricingType = RoomPricingType.per_head;
                 if (pricingTypeStr != null) {
                     try {
                         pricingType = RoomPricingType.valueOf(pricingTypeStr);
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                    }
                 }
 
                 RoomStatus status = RoomStatus.Vacant;
                 if (statusStr != null) {
                     try {
                         status = RoomStatus.valueOf(statusStr);
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                    }
                 }
 
                 Room room = new Room(capacity, price, pricingType, roomID, roomNumber, status, roomType);
@@ -178,11 +181,14 @@ public class DatabaseManagement {
             sb.append("    {");
             sb.append("\"roomID\": \"").append(escape(room.getRoomID())).append("\",");
             sb.append(" \"roomNumber\": \"").append(escape(room.getRoomNumber())).append("\",");
-            sb.append(" \"roomType\": \"").append(room.getType() != null ? room.getType().name() : "Single").append("\",");
+            sb.append(" \"roomType\": \"").append(room.getType() != null ? room.getType().name() : "Single")
+                    .append("\",");
             sb.append(" \"price\": ").append(room.getPrice()).append(",");
             sb.append(" \"capacity\": ").append(room.getCapacity()).append(",");
-            sb.append(" \"pricingType\": \"").append(room.getPricingType() != null ? room.getPricingType().name() : "per_head").append("\",");
-            sb.append(" \"status\": \"").append(room.getStatus() != null ? room.getStatus().name() : "Vacant").append("\"");
+            sb.append(" \"pricingType\": \"")
+                    .append(room.getPricingType() != null ? room.getPricingType().name() : "per_head").append("\",");
+            sb.append(" \"status\": \"").append(room.getStatus() != null ? room.getStatus().name() : "Vacant")
+                    .append("\"");
             sb.append(" }");
             if (i < rooms.size() - 1)
                 sb.append(",\n");
@@ -286,9 +292,10 @@ public class DatabaseManagement {
                         String roomID = extractString(obj, "roomID");
                         String emergencyContact = extractString(obj, "emergencyContact");
                         double balance = extractDouble(obj, "balance", 0.0);
+                        String idNumber = extractString(obj, "idNumber");
                         Tenant t = new Tenant(contactNumber, firstName, lastName, password, userID, username,
                                 User.Role.TENANT, tenantID == null ? userID : tenantID, roomID, null, balance,
-                                emergencyContact);
+                                emergencyContact, idNumber);
                         User.getUsers().add(t);
                     }
                     default -> {
@@ -377,6 +384,7 @@ public class DatabaseManagement {
                 sb.append(", \"roomID\": \"").append(escape(t.getRoomID())).append("\"");
                 sb.append(", \"balance\": ").append(t.getBalance());
                 sb.append(", \"emergencyContact\": \"").append(escape(t.getEmergencyContact())).append("\"");
+                sb.append(", \"idNumber\": \"").append(escape(t.getIdNumber())).append("\"");
             }
 
             sb.append(" }");

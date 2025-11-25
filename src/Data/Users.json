@@ -2,8 +2,8 @@
   "users": [
     {"userID": "LND001", "username": "lyka", "password": "lykalamparero", "firstName": "Kate", "lastName": "Coach", "contactNumber": "+63 912-345-6789", "role": "LANDLORD" },
     {"userID": "APT001", "username": "johndoe", "password": "password123", "firstName": "John", "lastName": "Doe", "contactNumber": "+63 923-456-7890", "role": "APPLICANT" },
-    {"userID": "LND001", "username": "lyka", "password": "lykalamparero", "firstName": "Kate", "lastName": "Coach", "contactNumber": "+63 912-345-6789", "role": "LANDLORD" },
-    {"userID": "APT001", "username": "johndoe", "password": "password123", "firstName": "John", "lastName": "Doe", "contactNumber": "+63 923-456-7890", "role": "APPLICANT" },
-    {"userID": "APT002", "username": "kyla", "password": "laway", "firstName": "Kyla", "lastName": "Lamparero", "contactNumber": "+63 995-643-7724", "role": "APPLICANT" }
+    {"userID": "APT002", "username": "kyla", "password": "laway", "firstName": "Kyla", "lastName": "Lamparero", "contactNumber": "+63 995-643-7724", "role": "APPLICANT" },
+    {"userID": "APT003", "username": "yer", "password": "yerrr", "firstName": "Justin", "lastName": "Lamparero", "contactNumber": "+63 912-345-6789", "role": "APPLICANT" },
+    {"userID": "TNT001", "username": "yer", "password": "yerrrrr", "firstName": "Justin", "lastName": "Lamparero", "contactNumber": "+63 912-345-6789", "role": "TENANT", "tenantID": "TNT001", "roomID": "R1", "balance": 0.0, "emergencyContact": "+63 912-345-6789", "idNumber": "YER" }
   ]
 }

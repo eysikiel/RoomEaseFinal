@@ -2,23 +2,18 @@ package Managements;
 
 import Utilities.InputValidator;
 import Model.User.User;
+import Enums.RoomStatus;
 import Model.User.Tenant;
 import Model.Property.Room;
-import Model.Contract.Contract;
 import Database.DatabaseManagement;
-
-import java.time.LocalDate;
 import java.util.LinkedList;
 
 public class TenantManagement {
 
-    private DatabaseManagement databaseManager;
-
-    public TenantManagement(DatabaseManagement databaseManager) {
-        this.databaseManager = databaseManager;
+    public TenantManagement() {
     }
 
-    public void displayMenu() {
+    public void  displayMenu() {
         int choice;
         do {
             System.out.println("-------------------------------------------------");
@@ -182,8 +177,7 @@ public class TenantManagement {
                     contactNumber, firstName, lastName, password, userID,
                     username, User.Role.TENANT, tenantID, null, // roomID null initially
                     null, // contract null - will be created in ContractManagement
-                    initialBalance, emergencyContact, idNumber
-            );
+                    initialBalance, emergencyContact, idNumber);
 
             // Add to system
             User.getUsers().add(newTenant);
@@ -264,7 +258,7 @@ public class TenantManagement {
 
         // Assign room to tenant
         selectedTenant.setRoomID(selectedRoom.getRoomID());
-        selectedRoom.setStatus(Room.RoomStatus.Occupied);
+        selectedRoom.setStatus(RoomStatus.Occupied);
 
         // Save changes
         DatabaseManagement.saveUsers();
@@ -315,7 +309,7 @@ public class TenantManagement {
         if (selectedTenant.getRoomID() != null) {
             for (Room room : DatabaseManagement.getRooms()) {
                 if (room.getRoomID().equals(selectedTenant.getRoomID())) {
-                    room.setStatus(Room.RoomStatus.Vacant);
+                    room.setStatus(RoomStatus.Vacant);
                     break;
                 }
             }
@@ -350,7 +344,8 @@ public class TenantManagement {
             System.out.println("Contact:          " + tenant.getContactNumber());
             System.out.println("ID Number:        " + tenant.getIdNumber());
             System.out.println("Emergency Contact: " + tenant.getEmergencyContact());
-            System.out.println("Room ID:          " + (tenant.getRoomID() != null ? tenant.getRoomID() : "Not assigned"));
+            System.out
+                    .println("Room ID:          " + (tenant.getRoomID() != null ? tenant.getRoomID() : "Not assigned"));
             System.out.println("Balance:          ₱" + String.format("%.2f", tenant.getBalance()));
             System.out.println("=====================");
         }

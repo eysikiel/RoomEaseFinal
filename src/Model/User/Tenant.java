@@ -20,16 +20,32 @@ public class Tenant extends User {
     private Contract contract;
     private double balance;
     private String emergencyContact;
+    private String idNumber;
 
     public Tenant(String contactNumber, String firstName, String lastName, String password, String userID,
             String username, Role role,
-            String tenantID, String roomID, Contract contract, double balance, String emergencyContact) {
+            String tenantID, String roomID, Contract contract, double balance, String emergencyContact,
+            String idNumber) {
         super(contactNumber, firstName, lastName, password, userID, username, role);
         this.tenantID = tenantID;
         this.roomID = roomID;
         this.contract = contract;
         this.balance = balance;
         this.emergencyContact = emergencyContact;
+        this.idNumber = idNumber;
+    }
+
+    public String getIdNumber() {
+        return idNumber;
+    }
+
+    public void setIdNumber(String idNumber) {
+        this.idNumber = idNumber;
+    }
+
+    // helper so callers that expected to autogenerate tenant IDs can use this
+    public static String generateNextTenantID() {
+        return User.generateNextUserID(User.Role.TENANT);
     }
 
     public String getTenantID() {

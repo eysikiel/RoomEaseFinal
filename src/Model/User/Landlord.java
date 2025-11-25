@@ -2,11 +2,13 @@ package Model.User;
 
 import Utilities.InputValidator;
 import Managements.RoomManagement;
+import Managements.TenantManagement;
 import Database.DatabaseManagement;
 
 public class Landlord extends User {
 
     private RoomManagement roomManagement;
+    private TenantManagement tenantManagement; // Add this
     private DatabaseManagement databaseManager;
 
     // 7-parameter constructor
@@ -14,7 +16,8 @@ public class Landlord extends User {
             String username, User.Role role) {
         super(contactNumber, firstName, lastName, password, userID, username, role);
         this.databaseManager = new DatabaseManagement();
-        this.roomManagement = new RoomManagement(this.databaseManager);
+        this.roomManagement = new RoomManagement();
+        this.tenantManagement = new TenantManagement(); // Initialize tenant management
     }
 
     // Getters and Setters
@@ -24,6 +27,10 @@ public class Landlord extends User {
 
     public DatabaseManagement getDatabaseManager() {
         return databaseManager;
+    }
+
+    public TenantManagement getTenantManagement() {
+        return this.tenantManagement;
     }
 
     public void setRoomManagement(RoomManagement roomManagement) {
@@ -58,7 +65,7 @@ public class Landlord extends User {
 
     public void accessTenantManagement() {
         System.out.println("Opening Tenant Management...");
-        System.out.println("Tenant Management feature coming soon!");
+        getTenantManagement().displayMenu(); // Call instance method
     }
 
     public void accessBilling() {
@@ -121,7 +128,7 @@ public class Landlord extends User {
             System.out.println("[11] Edit My Profile");
             System.out.println("[12] Log out");
             System.out.println("-------------------------------------------------");
-            
+
             // THEN GET THE CHOICE (NO MENU TITLE PARAMETER)
             choice = InputValidator.getMenuChoice(12);
             if (choice == -1) {
@@ -182,38 +189,40 @@ public class Landlord extends User {
         System.out.println("-------------------------------------------------");
         System.out.println("               EDIT LANDLORD PROFILE            ");
         System.out.println("-------------------------------------------------");
-        
+
         // Edit First Name
         String firstName = InputValidator.getValidName("Enter First Name (current: " + getFirstName() + ")");
         if (firstName != null) {
             setFirstName(firstName);
         }
-        
+
         // Edit Last Name
         String lastName = InputValidator.getValidName("Enter Last Name (current: " + getLastName() + ")");
         if (lastName != null) {
             setLastName(lastName);
         }
-        
+
         // Edit Contact Number
-        String contactNumber = InputValidator.getValidPHContactNumber("Enter Contact Number (current: " + getContactNumber() + ")");
+        String contactNumber = InputValidator
+                .getValidPHContactNumber("Enter Contact Number (current: " + getContactNumber() + ")");
         if (contactNumber != null) {
             setContactNumber(contactNumber);
         }
-        
+
         // Edit Password with confirmation
         Boolean changePassword = InputValidator.getConfirmation("Do you want to change your password?");
         if (changePassword != null && changePassword) {
             String newPassword = InputValidator.getStringWithMinLength("Enter New Password", 6);
             if (newPassword != null) {
-                Boolean confirmPassword = InputValidator.getConfirmation("Are you sure you want to change your password?");
+                Boolean confirmPassword = InputValidator
+                        .getConfirmation("Are you sure you want to change your password?");
                 if (confirmPassword != null && confirmPassword) {
                     setPassword(newPassword);
                     System.out.println("Password updated successfully!");
                 }
             }
         }
-        
+
         System.out.println("Profile updated successfully!");
     }
 

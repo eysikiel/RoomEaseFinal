@@ -13,18 +13,17 @@ public class RoomManagement {
 
     private Scanner input = new Scanner(System.in);
     private LinkedList<Room> roomList;
-    private DatabaseManagement databaseManager;
+    // DatabaseManagement uses static methods - access statically
     private int choice;
 
-    // Constructor that accepts DatabaseManagement instance
-    public RoomManagement(DatabaseManagement databaseManager) {
-        this.databaseManager = databaseManager;
+    // Parameterless constructor
+    public RoomManagement() {
         loadRoomsFromDatabase();
     }
 
     // Load rooms from database on initialization
     private void loadRoomsFromDatabase() {
-        this.roomList = databaseManager.getRooms();
+        this.roomList = DatabaseManagement.getRooms();
         if (this.roomList == null) {
             this.roomList = new LinkedList<>();
         }
@@ -32,7 +31,7 @@ public class RoomManagement {
 
     // Save rooms to database
     private void saveRoomsToDatabase() {
-        databaseManager.saveRooms(roomList);
+        DatabaseManagement.saveRooms(roomList);
     }
 
     public void displayMenu() {
@@ -92,7 +91,7 @@ public class RoomManagement {
     public void viewRooms() {
         // Reload from database to ensure we have latest data
         loadRoomsFromDatabase();
-        
+
         if (roomList.isEmpty()) {
             System.out.println("No rooms available.");
         } else {
@@ -181,7 +180,7 @@ public class RoomManagement {
     public void editRoom() {
         // Reload from database to ensure we have latest data
         loadRoomsFromDatabase();
-        
+
         if (roomList.isEmpty()) {
             System.out.println("No rooms available to edit.");
             return;
@@ -218,7 +217,7 @@ public class RoomManagement {
             case 1:
                 System.out.print("Enter new Room Number: ");
                 String newNumber = input.nextLine();
-                
+
                 // Check if new room number already exists
                 for (Room room : roomList) {
                     if (room.getRoomNumber().equals(newNumber) && !room.getRoomID().equals(roomToEdit.getRoomID())) {
@@ -226,7 +225,7 @@ public class RoomManagement {
                         return;
                     }
                 }
-                
+
                 roomToEdit.setRoomNumber(newNumber);
                 System.out.println("Room number updated successfully!");
                 break;
@@ -313,7 +312,7 @@ public class RoomManagement {
     public void deleteRoomMenu() {
         // Reload from database to ensure we have latest data
         loadRoomsFromDatabase();
-        
+
         if (roomList.isEmpty()) {
             System.out.println("No rooms available to delete.");
             return;
