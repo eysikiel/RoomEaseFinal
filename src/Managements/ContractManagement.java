@@ -1,33 +1,28 @@
 package Managements;
 
-import Utilities.InputValidator;
-import Model.User.User;
-import Model.User.Tenant;
-import Model.Property.Room;
-import Model.Contract.Contract;
 import Database.DatabaseManagement;
-
-import java.time.LocalDate;
-import java.util.Date;
 import Enums.ContractStatus;
 import Enums.RoomStatus;
+import Model.Contract.Contract;
+import Model.Property.Room;
+import Model.User.Tenant;
+import Model.User.User;
+import Utilities.InputValidator;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.LinkedList;
 
 public class ContractManagement {
-    // DatabaseManagement is static-style; no instance required here
     private LinkedList<Contract> contractHistory;
-    // in-memory list of all persisted contracts
     private LinkedList<Contract> contracts;
 
     public ContractManagement() {
         this.contractHistory = new LinkedList<>();
-        // load persisted contracts and initialize history
         this.contracts = DatabaseManagement.getContracts();
         for (Contract c : this.contracts) {
             if (c.getContractStatus() != Enums.ContractStatus.Active) {
                 this.contractHistory.add(c);
             } else {
-                // attach active contract to tenant in-memory if not already
                 Tenant t = c.getTenantID();
                 if (t != null && t.getContract() == null) {
                     t.setContract(c);
@@ -140,10 +135,27 @@ public class ContractManagement {
 
         Tenant selectedTenant = availableTenants.get(tenantChoice - 1);
 
-        // Get contract details
-        double monthlyRent = InputValidator.getValidDouble(1, 100000, "Enter monthly rent");
-        if (monthlyRent == -1)
-            return;
+        // Get the room price automatically if room is assigned
+        double monthlyRent = 0.0;
+        Room tenantRoom = null;
+        
+        if (selectedTenant.getRoomID() != null) {
+            for (Room room : DatabaseManagement.getRooms()) {
+                if (room.getRoomID().equals(selectedTenant.getRoomID())) {
+                    tenantRoom = room;
+                    monthlyRent = room.getPrice();
+                    System.out.println("Auto-detected monthly rent from room: ₱" + String.format("%.2f", monthlyRent));
+                    break;
+                }
+            }
+        }
+
+        // If no room assigned or couldn't find room price, ask for rent manually
+        if (monthlyRent <= 0) {
+            monthlyRent = InputValidator.getValidDouble(1, 100000, "Enter monthly rent");
+            if (monthlyRent == -1)
+                return;
+        }
 
         double deposit = InputValidator.getValidDouble(0, 50000, "Enter security deposit");
         if (deposit == -1)
@@ -161,26 +173,16 @@ public class ContractManagement {
         Date start = java.sql.Date.valueOf(startDate);
         Date end = java.sql.Date.valueOf(endDate);
 
-        // basic date validation
+        // Basic date validation using InputValidator
         if (endDate.isBefore(startDate) || endDate.isEqual(startDate)) {
             System.out.println("End date must be after start date.");
             return;
         }
 
-        // Create contract using tenant and room objects
-        String contractID = "CNT" + System.currentTimeMillis();
-        // find the Room object for tenant
-        Room tenantRoom = null;
-        if (selectedTenant.getRoomID() != null) {
-            for (Room r : DatabaseManagement.getRooms()) {
-                if (r.getRoomID().equals(selectedTenant.getRoomID())) {
-                    tenantRoom = r;
-                    break;
-                }
-            }
-        }
-
-        // extra validation: ensure room is vacant
+        // Generate sequential contract ID
+        String contractID = generateNextContractID();
+        
+        // Extra validation: ensure room is vacant if it exists
         if (tenantRoom != null && tenantRoom.getStatus() == RoomStatus.Occupied) {
             System.out.println("Selected room is not vacant. Cannot create contract.");
             return;
@@ -201,7 +203,7 @@ public class ContractManagement {
             DatabaseManagement.saveRooms(DatabaseManagement.getRooms());
         }
 
-        // persist contract to disk
+        // Persist contract to disk
         LinkedList<Contract> persisted = DatabaseManagement.getContracts();
         persisted.add(newContract);
         DatabaseManagement.saveContracts(persisted);
@@ -243,7 +245,7 @@ public class ContractManagement {
 
         Contract selectedContract = activeContracts.get(contractChoice - 1);
 
-        // Ask about rent adjustment
+        // Ask about rent adjustment using InputValidator
         Boolean doAdjustRent = InputValidator.getConfirmation("Do you want to adjust the monthly rent?");
         if (doAdjustRent != null && doAdjustRent) {
             double newRent = InputValidator.getValidDouble(1, 100000, "Enter new monthly rent");
@@ -255,7 +257,8 @@ public class ContractManagement {
         LocalDate newEndDate = InputValidator.getValidDate("Enter new End Date");
         if (newEndDate == null)
             return;
-        // validate new end date must be after current
+        
+        // Validate new end date must be after current
         java.util.Date existingEnd = selectedContract.getEndDate();
         if (existingEnd != null && !java.sql.Date.valueOf(newEndDate).after(existingEnd)) {
             System.out.println("New end date must be after the current end date.");
@@ -264,7 +267,6 @@ public class ContractManagement {
         selectedContract.setEndDate(java.sql.Date.valueOf(newEndDate));
 
         // Save changes
-        // update persistent store
         LinkedList<Contract> persistedRenew = DatabaseManagement.getContracts();
         for (int i = 0; i < persistedRenew.size(); i++) {
             if (persistedRenew.get(i).getContractID().equals(selectedContract.getContractID())) {
@@ -307,7 +309,7 @@ public class ContractManagement {
         Contract selectedContract = activeContracts.get(contractChoice - 1);
         Tenant tenant = findTenantByContract(selectedContract);
 
-        // Get termination reason
+        // Get termination reason using InputValidator
         String reason = InputValidator.getNonEmptyString("Enter termination reason");
         if (reason == null)
             return;
@@ -333,7 +335,7 @@ public class ContractManagement {
             tenant.setContract(null);
         }
 
-        // persist updated contract list
+        // Persist updated contract list
         LinkedList<Contract> persisted = DatabaseManagement.getContracts();
         for (int i = 0; i < persisted.size(); i++) {
             if (persisted.get(i).getContractID().equals(selectedContract.getContractID())) {
@@ -371,6 +373,28 @@ public class ContractManagement {
             }
             System.out.println("-------------------------------------------------");
         }
+    }
+
+    // Helper method to generate sequential contract IDs
+    private String generateNextContractID() {
+        LinkedList<Contract> allContracts = DatabaseManagement.getContracts();
+        int maxNumber = 0;
+        
+        for (Contract contract : allContracts) {
+            String contractID = contract.getContractID();
+            if (contractID.startsWith("CNT")) {
+                try {
+                    int number = Integer.parseInt(contractID.substring(3));
+                    if (number > maxNumber) {
+                        maxNumber = number;
+                    }
+                } catch (NumberFormatException e) {
+                    // Ignore contracts with non-numeric suffixes
+                }
+            }
+        }
+        
+        return "CNT" + String.format("%02d", maxNumber + 1);
     }
 
     // Helper methods

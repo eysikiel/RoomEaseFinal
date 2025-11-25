@@ -1,11 +1,11 @@
 package Managements;
 
-import Utilities.InputValidator;
-import Model.User.User;
-import Enums.RoomStatus;
-import Model.User.Tenant;
-import Model.Property.Room;
 import Database.DatabaseManagement;
+import Enums.RoomStatus;
+import Model.Property.Room;
+import Model.User.Tenant;
+import Model.User.User;
+import Utilities.InputValidator;
 import java.util.LinkedList;
 
 public class TenantManagement {
@@ -150,18 +150,11 @@ public class TenantManagement {
                 return;
             }
 
-            String password = InputValidator.getStringWithMinLength("Enter Password", 6);
-            if (password == null) {
-                return;
-            }
+            // Use default password instead of asking landlord
+            String defaultPassword = "newTenant1234";
 
-            String contactNumber = InputValidator.getValidPHContactNumber("Enter Contact Number (+63 9XX-XXX-XXXX)  ");
+            String contactNumber = InputValidator.getValidPHContactNumber("Enter Contact Number (+63 9XX-XXX-XXXX)");
             if (contactNumber == null) {
-                return;
-            }
-
-            String idNumber = InputValidator.getNonEmptyString("Enter ID Number");
-            if (idNumber == null) {
                 return;
             }
 
@@ -174,19 +167,20 @@ public class TenantManagement {
 
             // Create new tenant (NO CONTRACT - that goes in ContractManagement)
             Tenant newTenant = new Tenant(
-                    contactNumber, firstName, lastName, password, userID,
+                    contactNumber, firstName, lastName, defaultPassword, userID,
                     username, User.Role.TENANT, tenantID, null, // roomID null initially
                     null, // contract null - will be created in ContractManagement
-                    initialBalance, emergencyContact, idNumber);
+                    initialBalance, emergencyContact);
 
-            // Add to system (DatabaseManagement.addUser will add to in-memory list and
-            // persist)
+            // Add to system (DatabaseManagement.addUser will add to in-memory list and persist)
             DatabaseManagement.addUser(newTenant);
 
             System.out.println("\nTenant registered successfully!");
             System.out.println("Tenant ID: " + tenantID);
             System.out.println("Username: " + username);
+            System.out.println("Default Password: " + defaultPassword);
             System.out.println("Note: Contract must be created separately in Contract Management");
+            System.out.println("Note: Tenant should change their password upon first login");
 
         } catch (Exception e) {
             System.out.println("Error registering tenant: " + e.getMessage());
@@ -342,10 +336,9 @@ public class TenantManagement {
             System.out.println("Name:             " + tenant.getFullName());
             System.out.println("Username:         " + tenant.getUsername());
             System.out.println("Contact:          " + tenant.getContactNumber());
-            System.out.println("ID Number:        " + tenant.getIdNumber());
+            // REMOVED: ID Number line
             System.out.println("Emergency Contact: " + tenant.getEmergencyContact());
-            System.out
-                    .println("Room ID:          " + (tenant.getRoomID() != null ? tenant.getRoomID() : "Not assigned"));
+            System.out.println("Room ID:          " + (tenant.getRoomID() != null ? tenant.getRoomID() : "Not assigned"));
             System.out.println("Balance:          ₱" + String.format("%.2f", tenant.getBalance()));
             System.out.println("=====================");
         }

@@ -118,7 +118,6 @@ public class DatabaseManagement {
     }
 
     // ==================== ROOM MANAGEMENT METHODS ====================
-
     /**
      * Load rooms from `src/Data/Rooms.json`
      */
@@ -209,7 +208,6 @@ public class DatabaseManagement {
     }
 
     // ==================== CONTRACT MANAGEMENT METHODS ====================
-
     private static void ensureContractsFileExists() throws java.io.IOException {
         File f = getContractsFile();
         File parent = f.getParentFile();
@@ -357,10 +355,11 @@ public class DatabaseManagement {
                 sb.append(", \"terminationReason\": \"").append(escape(c.getTerminationReason())).append("\"");
             }
             sb.append(" }");
-            if (i < contracts.size() - 1)
-                sb.append(",\n");
-            else
+            if (i < contracts.size() - 1) {
+                sb.append(",\n"); 
+            }else {
                 sb.append('\n');
+            }
         }
 
         sb.append("  ]\n}");
@@ -415,10 +414,11 @@ public class DatabaseManagement {
             sb.append(" \"status\": \"").append(room.getStatus() != null ? room.getStatus().name() : "Vacant")
                     .append("\"");
             sb.append(" }");
-            if (i < rooms.size() - 1)
-                sb.append(",\n");
-            else
+            if (i < rooms.size() - 1) {
+                sb.append(",\n"); 
+            }else {
                 sb.append('\n');
+            }
         }
 
         sb.append("  ]\n}");
@@ -445,7 +445,6 @@ public class DatabaseManagement {
     }
 
     // ==================== USER MANAGEMENT METHODS (existing) ====================
-
     /**
      * Load users from `src/Data/Users.json` into User.getUsers()
      */
@@ -517,10 +516,10 @@ public class DatabaseManagement {
                         String roomID = extractString(obj, "roomID");
                         String emergencyContact = extractString(obj, "emergencyContact");
                         double balance = extractDouble(obj, "balance", 0.0);
-                        String idNumber = extractString(obj, "idNumber");
+                        // REMOVED: String idNumber = extractString(obj, "idNumber");
                         Tenant t = new Tenant(contactNumber, firstName, lastName, password, userID, username,
                                 User.Role.TENANT, tenantID == null ? userID : tenantID, roomID, null, balance,
-                                emergencyContact, idNumber);
+                                emergencyContact); // REMOVED: idNumber parameter
                         User.getUsers().add(t);
                     }
                     default -> {
@@ -542,8 +541,9 @@ public class DatabaseManagement {
         for (int i = 0; i < arrayContent.length(); i++) {
             char c = arrayContent.charAt(i);
             if (c == '{') {
-                if (brace == 0)
+                if (brace == 0) {
                     last = i;
+                }
                 brace++;
             } else if (c == '}') {
                 brace--;
@@ -558,8 +558,9 @@ public class DatabaseManagement {
     private static String extractString(String json, String key) {
         Pattern p = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:\\s*\"([^\"]*)\"");
         Matcher m = p.matcher(json);
-        if (m.find())
+        if (m.find()) {
             return m.group(1);
+        }
         return null;
     }
 
@@ -609,14 +610,14 @@ public class DatabaseManagement {
                 sb.append(", \"roomID\": \"").append(escape(t.getRoomID())).append("\"");
                 sb.append(", \"balance\": ").append(t.getBalance());
                 sb.append(", \"emergencyContact\": \"").append(escape(t.getEmergencyContact())).append("\"");
-                sb.append(", \"idNumber\": \"").append(escape(t.getIdNumber())).append("\"");
             }
 
             sb.append(" }");
-            if (i < users.size() - 1)
-                sb.append(",\n");
-            else
+            if (i < users.size() - 1) {
+                sb.append(",\n"); 
+            }else {
                 sb.append('\n');
+            }
         }
 
         sb.append("  ]\n}");
@@ -630,8 +631,9 @@ public class DatabaseManagement {
     }
 
     private static String escape(String s) {
-        if (s == null)
+        if (s == null) {
             return "";
+        }
         return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
     }
 

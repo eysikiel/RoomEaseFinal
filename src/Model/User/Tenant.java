@@ -1,7 +1,6 @@
 package Model.User;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Scanner;
 
@@ -10,6 +9,7 @@ import Model.Billing.Payment;
 import Model.Contract.Contract;
 import Model.Property.Room;
 import Model.Request.MaintenanceRequest;
+import Database.DatabaseManagement;
 
 import java.util.Date;
 
@@ -20,32 +20,43 @@ public class Tenant extends User {
     private Contract contract;
     private double balance;
     private String emergencyContact;
-    private String idNumber;
+    // REMOVED: private String idNumber;
 
     public Tenant(String contactNumber, String firstName, String lastName, String password, String userID,
             String username, Role role,
-            String tenantID, String roomID, Contract contract, double balance, String emergencyContact,
-            String idNumber) {
+            String tenantID, String roomID, Contract contract, double balance, String emergencyContact) {
         super(contactNumber, firstName, lastName, password, userID, username, role);
         this.tenantID = tenantID;
         this.roomID = roomID;
         this.contract = contract;
         this.balance = balance;
         this.emergencyContact = emergencyContact;
-        this.idNumber = idNumber;
     }
 
-    public String getIdNumber() {
-        return idNumber;
-    }
+    // REMOVED: getIdNumber() and setIdNumber()
 
-    public void setIdNumber(String idNumber) {
-        this.idNumber = idNumber;
-    }
-
-    // helper so callers that expected to autogenerate tenant IDs can use this
     public static String generateNextTenantID() {
-        return User.generateNextUserID(User.Role.TENANT);
+        LinkedList<User> users = User.getUsers();
+        int maxNumber = 0;
+        
+        for (User user : users) {
+            if (user instanceof Tenant) {
+                Tenant tenant = (Tenant) user;
+                String tenantID = tenant.getTenantID();
+                if (tenantID.startsWith("TNT")) {
+                    try {
+                        int number = Integer.parseInt(tenantID.substring(3));
+                        if (number > maxNumber) {
+                            maxNumber = number;
+                        }
+                    } catch (NumberFormatException e) {
+                        // Ignore tenants with non-numeric suffixes
+                    }
+                }
+            }
+        }
+        
+        return "TNT" + String.format("%03d", maxNumber + 1);
     }
 
     public String getTenantID() {
@@ -90,10 +101,10 @@ public class Tenant extends User {
 
     @Override
     public void displayRoleMenu() {
-        displayTenantMenu(new ArrayList<>(), null, new PriorityQueue<>());
+        displayTenantMenu(new LinkedList<>(), null, new PriorityQueue<>());
     }
 
-    public void displayTenantMenu(List<Bill> bills, Room room, PriorityQueue<MaintenanceRequest> maintenanceQueue) {
+    public void displayTenantMenu(LinkedList<Bill> bills, Room room, PriorityQueue<MaintenanceRequest> maintenanceQueue) {
         try (Scanner sc = new Scanner(System.in)) {
             boolean exit;
             do {
@@ -101,14 +112,15 @@ public class Tenant extends User {
                 System.out.println("=== TENANT MENU ===");
                 System.out.println("1. My Profile");
                 System.out.println("2. Edit Profile");
-                System.out.println("3. My Room");
-                System.out.println("4. Billing and Payments");
-                System.out.println("5. Submit Maintenance Request");
-                System.out.println("6. View Maintenance Issues");
-                System.out.println("7. Vote for Maintenance Request");
-                System.out.println("8. Send Feedback / Complaint");
-                System.out.println("9. Logout");
-                System.out.print("\nChoose an option (1-9): ");
+                System.out.println("3. My Contract");
+                System.out.println("4. My Room");
+                System.out.println("5. Billing and Payments");
+                System.out.println("6. Submit Maintenance Request");
+                System.out.println("7. View Maintenance Issues");
+                System.out.println("8. Vote for Maintenance Request");
+                System.out.println("9. Send Feedback / Complaint");
+                System.out.println("10. Logout");
+                System.out.print("\nChoose an option (1-10): ");
 
                 int choice = Integer.parseInt(sc.nextLine());
 
@@ -125,9 +137,12 @@ public class Tenant extends User {
                         editProfile(field, newValue);
                         break;
                     case 3:
-                        viewRoom(room);
+                        viewContract();
                         break;
                     case 4:
+                        viewRoom(room);
+                        break;
+                    case 5:
                         viewBills(bills);
                         System.out.print("Do you want to make a payment? (yes/no): ");
                         if (sc.nextLine().equalsIgnoreCase("yes")) {
@@ -137,7 +152,7 @@ public class Tenant extends User {
                             makePayment(payment);
                         }
                         break;
-                    case 5:
+                    case 6:
                         System.out.print("Enter maintenance issue description: ");
                         String issue = sc.nextLine();
                         // Note: Need actual Room object, using null for now
@@ -145,20 +160,19 @@ public class Tenant extends User {
                                 this, issue, new Date());
                         submitMaintenanceRequest(request);
                         break;
-                    case 6:
+                    case 7:
                         viewMaintenanceIssues(maintenanceQueue);
                         break;
-                    case 7:
+                    case 8:
                         System.out.print("Enter Maintenance Request ID to vote: ");
                         voteMaintenance(sc.nextLine(), maintenanceQueue);
                         break;
-                    case 8:
+                    case 9:
                         System.out.print("Enter your feedback/complaint: ");
                         String feedback = sc.nextLine();
-                        // sendFeedback(feedback, admin); // Admin not available
                         System.out.println("Feedback recorded: " + feedback);
                         break;
-                    case 9:
+                    case 10:
                         logout();
                         exit = true;
                         break;
@@ -169,25 +183,48 @@ public class Tenant extends User {
         }
     }
 
-    // add sa uml
-    public void viewProfile() {
-        System.out.println("=== MY PROFILE ===");
-        System.out.println("Tenant ID: " + getTenantID());
-        System.out.println("Name: " + getFirstName() + " " + getLastName());
-        System.out.println("Contact Number: " + getContactNumber());
-        System.out.println("Username: " + getUsername());
+    @Override
+    public void displayProfile() {
+        System.out.println("-------------------------------------------------");
+        System.out.println("                   TENANT PROFILE                ");
+        System.out.println("-------------------------------------------------");
+        System.out.println("Name:             " + getFirstName() + " " + getLastName());
+        System.out.println("Username:         " + getUsername());
+        System.out.println("Contact:          " + getContactNumber());
+        System.out.println("Tenant ID:        " + getTenantID());
         System.out.println("Emergency Contact: " + getEmergencyContact());
-        System.out.println("==================");
+        System.out.println("Room:             " + (getRoomID() != null ? getRoomID() : "Not assigned"));
+        System.out.println("Balance:          ₱" + String.format("%.2f", getBalance()));
+        
+        // Contract Information
+        if (contract != null) {
+            System.out.println("Contract Status:  " + contract.getContractStatus());
+            System.out.println("Monthly Rent:     ₱" + String.format("%.2f", contract.getMonthlyRent()));
+            System.out.println("Start Date:       " + contract.getStartDate());
+            System.out.println("End Date:         " + contract.getEndDate());
+        } else {
+            System.out.println("Contract Status:  No active contract");
+        }
+        
+        System.out.println("-------------------------------------------------");
+    }
+
+    public void viewProfile() {
+        displayProfile(); // Use the overridden method
     }
 
     public void viewRoom(Room room) {
         System.out.println("===== ROOM DETAILS =====");
-        System.out.println("Room ID: " + room.getRoomID());
-        System.out.println("Type: " + room.getType());
-        System.out.println("Price: " + room.getPrice());
-        System.out.println("Capacity: " + room.getCapacity());
-        System.out.println("Amenities: " + room.getAmenities());
-        System.out.println("Status: " + room.getStatus());
+        if (room != null) {
+            System.out.println("Room ID: " + room.getRoomID());
+            System.out.println("Type: " + room.getType());
+            System.out.println("Price: " + room.getPrice());
+            System.out.println("Capacity: " + room.getCapacity());
+            System.out.println("Amenities: " + room.getAmenities());
+            System.out.println("Status: " + room.getStatus());
+        } else {
+            System.out.println("No room assigned.");
+        }
         System.out.println("=========================");
     }
 
@@ -209,7 +246,7 @@ public class Tenant extends User {
         System.out.println("Maintenance request submitted successfully!");
     }
 
-    public void viewBills(List<Bill> bills) {
+    public void viewBills(LinkedList<Bill> bills) {
         System.out.println("=== MY BILLS ===");
         for (Bill bill : bills) {
             if (bill.getTenantID().equals(this.tenantID)) {
@@ -274,5 +311,17 @@ public class Tenant extends User {
                 System.out.println("Invalid field.");
         }
         System.out.println("Profile updated successfully!");
+    }
+
+    // Helper method to get room details
+    public Room getRoomDetails() {
+        if (roomID != null) {
+            for (Room room : DatabaseManagement.getRooms()) {
+                if (room.getRoomID().equals(roomID)) {
+                    return room;
+                }
+            }
+        }
+        return null;
     }
 }

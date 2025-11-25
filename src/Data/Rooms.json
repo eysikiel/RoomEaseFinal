@@ -4,6 +4,7 @@
     {"roomID": "R2", "roomNumber": "102", "roomType": "Single", "price": 0.0, "capacity": 2, "pricingType": "full", "status": "Occupied" },
     {"roomID": "R3", "roomNumber": "103", "roomType": "Single", "price": 0.0, "capacity": 4, "pricingType": "per_head", "status": "Vacant" },
     {"roomID": "R4", "roomNumber": "104", "roomType": "Double", "price": 0.0, "capacity": 3, "pricingType": "per_head", "status": "Vacant" },
-    {"roomID": "R5", "roomNumber": "105", "roomType": "Shared", "price": 0.0, "capacity": 6, "pricingType": "per_head", "status": "Vacant" }
+    {"roomID": "R5", "roomNumber": "105", "roomType": "Shared", "price": 0.0, "capacity": 6, "pricingType": "per_head", "status": "Vacant" },
+    {"roomID": "R6", "roomNumber": "3", "roomType": "Shared", "price": 0.0, "capacity": 8, "pricingType": "per_head", "status": "Vacant" }
   ]
 }
