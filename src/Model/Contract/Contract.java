@@ -92,7 +92,6 @@ public class Contract {
         this.deposit = deposit;
     }
 
-    // backward compatible alias used by some management classes
     public void setSecurityDeposit(double deposit) {
         setDeposit(deposit);
     }

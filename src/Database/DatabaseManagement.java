@@ -31,9 +31,6 @@ public class DatabaseManagement {
     private static final String RELATIVE_CONTRACTS_PATH = "src" + File.separator + "Data" + File.separator
             + "Contracts.json";
 
-    /**
-     * Initialize database: ensure files exist and load data into memory.
-     */
     public static void init() {
         try {
             ensureUsersFileExists();
@@ -46,24 +43,19 @@ public class DatabaseManagement {
         }
     }
 
-    /**
-     * Load contracts and attach active contracts to tenant objects and set room
-     * statuses accordingly
-     */
     public static void loadContracts() {
         LinkedList<Model.Contract.Contract> contracts = getContracts();
 
-        // Attach active contracts to tenant objects in memory and ensure rooms are
-        // marked
+        
         for (Model.Contract.Contract c : contracts) {
             Model.User.Tenant tenant = c.getTenantID();
             if (tenant != null) {
-                // find the tenant instance from memory (loaded by loadUsers)
+                
                 for (Model.User.User u : Model.User.User.getUsers()) {
                     if (u instanceof Model.User.Tenant) {
                         Model.User.Tenant t = (Model.User.Tenant) u;
                         if (tenant != null && t.getTenantID().equals(tenant.getTenantID())) {
-                            // if contract is active, attach it
+                            
                             if (c.getContractStatus() == Enums.ContractStatus.Active) {
                                 t.setContract(c);
                             }
@@ -73,7 +65,6 @@ public class DatabaseManagement {
                 }
             }
 
-            // update the room status to occupied for active contracts
             if (c.getRoomID() != null && c.getContractStatus() == Enums.ContractStatus.Active) {
                 String rid = c.getRoomID().getRoomID();
                 for (Model.Property.Room r : getRooms()) {
@@ -85,7 +76,6 @@ public class DatabaseManagement {
             }
         }
 
-        // persist rooms status changes if any
         saveRooms(getRooms());
     }
 
@@ -117,10 +107,6 @@ public class DatabaseManagement {
         }
     }
 
-    // ==================== ROOM MANAGEMENT METHODS ====================
-    /**
-     * Load rooms from `src/Data/Rooms.json`
-     */
     public static LinkedList<Room> getRooms() {
         LinkedList<Room> rooms = new LinkedList<>();
         File f = getRoomsFile();
@@ -146,11 +132,10 @@ public class DatabaseManagement {
         }
 
         String content = sb.toString();
-        // find the rooms array
         int start = content.indexOf('[');
         int end = content.lastIndexOf(']');
         if (start == -1 || end == -1 || end <= start) {
-            return rooms; // nothing to load
+            return rooms;
         }
 
         String array = content.substring(start + 1, end).trim();
@@ -158,7 +143,6 @@ public class DatabaseManagement {
             return rooms;
         }
 
-        // split objects by '},' boundary but keep braces
         List<String> objects = splitJsonObjects(array);
 
         for (String obj : objects) {
@@ -171,7 +155,6 @@ public class DatabaseManagement {
                 String pricingTypeStr = extractString(obj, "pricingType");
                 String statusStr = extractString(obj, "status");
 
-                // Parse enums
                 RoomType roomType = RoomType.Single;
                 if (roomTypeStr != null) {
                     try {
@@ -222,9 +205,6 @@ public class DatabaseManagement {
         }
     }
 
-    /**
-     * Load contracts from `src/Data/Contracts.json`
-     */
     public static LinkedList<Model.Contract.Contract> getContracts() {
         LinkedList<Model.Contract.Contract> contracts = new LinkedList<>();
         File f = getContractsFile();
@@ -253,7 +233,7 @@ public class DatabaseManagement {
         int start = content.indexOf('[');
         int end = content.lastIndexOf(']');
         if (start == -1 || end == -1 || end <= start) {
-            return contracts; // nothing to load
+            return contracts;
         }
 
         String array = content.substring(start + 1, end).trim();
@@ -322,9 +302,6 @@ public class DatabaseManagement {
         return contracts;
     }
 
-    /**
-     * Save contracts to `src/Data/Contracts.json`
-     */
     public static void saveContracts(LinkedList<Model.Contract.Contract> contracts) {
         File f = getContractsFile();
         try {
@@ -385,9 +362,6 @@ public class DatabaseManagement {
         return defaultVal;
     }
 
-    /**
-     * Save rooms to `src/Data/Rooms.json`
-     */
     public static void saveRooms(LinkedList<Room> rooms) {
         File f = getRoomsFile();
         try {
@@ -445,9 +419,7 @@ public class DatabaseManagement {
     }
 
     // ==================== USER MANAGEMENT METHODS (existing) ====================
-    /**
-     * Load users from `src/Data/Users.json` into User.getUsers()
-     */
+
     public static void loadUsers() {
         File f = getUsersFile();
         if (!f.exists()) {
@@ -472,11 +444,10 @@ public class DatabaseManagement {
         }
 
         String content = sb.toString();
-        // find the users array
         int start = content.indexOf('[');
         int end = content.lastIndexOf(']');
         if (start == -1 || end == -1 || end <= start) {
-            return; // nothing to load
+            return;
         }
 
         String array = content.substring(start + 1, end).trim();
@@ -484,7 +455,6 @@ public class DatabaseManagement {
             return;
         }
 
-        // split objects by '},' boundary but keep braces
         List<String> objects = splitJsonObjects(array);
 
         for (String obj : objects) {
@@ -516,10 +486,10 @@ public class DatabaseManagement {
                         String roomID = extractString(obj, "roomID");
                         String emergencyContact = extractString(obj, "emergencyContact");
                         double balance = extractDouble(obj, "balance", 0.0);
-                        // REMOVED: String idNumber = extractString(obj, "idNumber");
+                        
                         Tenant t = new Tenant(contactNumber, firstName, lastName, password, userID, username,
                                 User.Role.TENANT, tenantID == null ? userID : tenantID, roomID, null, balance,
-                                emergencyContact); // REMOVED: idNumber parameter
+                                emergencyContact);
                         User.getUsers().add(t);
                     }
                     default -> {
@@ -577,9 +547,6 @@ public class DatabaseManagement {
         return defaultVal;
     }
 
-    /**
-     * Save current users (User.getUsers()) into `src/Data/Users.json`.
-     */
     public static void saveUsers() {
         File f = getUsersFile();
         try {
@@ -641,7 +608,6 @@ public class DatabaseManagement {
         try {
             File cwd = new File(".").getCanonicalFile();
             File dir = cwd;
-            // search upward for a folder containing `src`
             for (int i = 0; i < 10 && dir != null; i++) {
                 File src = new File(dir, "src");
                 if (src.exists() && src.isDirectory()) {
@@ -651,7 +617,6 @@ public class DatabaseManagement {
             }
         } catch (IOException ignored) {
         }
-        // fallback to relative path
         return new File(RELATIVE_USERS_PATH);
     }
 
@@ -659,7 +624,7 @@ public class DatabaseManagement {
         try {
             File cwd = new File(".").getCanonicalFile();
             File dir = cwd;
-            // search upward for a folder containing `src`
+        
             for (int i = 0; i < 10 && dir != null; i++) {
                 File src = new File(dir, "src");
                 if (src.exists() && src.isDirectory()) {
@@ -669,7 +634,7 @@ public class DatabaseManagement {
             }
         } catch (IOException ignored) {
         }
-        // fallback to relative path
+        
         return new File(RELATIVE_ROOMS_PATH);
     }
 
@@ -689,9 +654,6 @@ public class DatabaseManagement {
         return new File(RELATIVE_CONTRACTS_PATH);
     }
 
-    /**
-     * Add a user to memory and persist immediately.
-     */
     public static void addUser(User u) {
         User.getUsers().add(u);
         saveUsers();

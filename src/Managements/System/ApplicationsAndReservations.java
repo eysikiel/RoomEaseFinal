@@ -69,7 +69,7 @@ public class ApplicationsAndReservations {
         boolean found = false;
 
         for (int i = 0; i < applicationList.size(); i++) {
-            Application app = applicationList.get(i); // LinkedList action
+            Application app = applicationList.get(i);
 
             if (app.getApplicationStatus().equalsIgnoreCase("pending")) {
                 found = true;

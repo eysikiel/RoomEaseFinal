@@ -6,21 +6,20 @@ import java.util.regex.Pattern;
 
 public class InputValidator {
     private static Scanner input = new Scanner(System.in);
-    // expose a public scanner alias for other classes that referenced
-    // InputValidator.scanner
+    
     public static Scanner scanner = input;
 
-    // Validate integer input within range with cancel option
+    
     public static int getValidInt(int min, int max, String prompt) {
         int userInput;
         do {
             System.out.print(prompt + " (Enter 0 to cancel): ");
             try {
                 userInput = input.nextInt();
-                input.nextLine(); // consume newline
+                input.nextLine();
 
                 if (userInput == 0) {
-                    return -1; // Cancel signal
+                    return -1;
                 }
 
                 if (userInput >= min && userInput <= max) {
@@ -31,22 +30,22 @@ public class InputValidator {
                 }
             } catch (Exception e) {
                 System.out.println("Invalid input. Please enter a number only, or 0 to cancel.");
-                input.nextLine(); // clear invalid input
+                input.nextLine();
             }
         } while (true);
     }
 
-    // Validate double input within range with cancel option
+    
     public static double getValidDouble(double min, double max, String prompt) {
         double userInput;
         do {
             System.out.print(prompt + " (Enter 0 to cancel): ");
             try {
                 userInput = input.nextDouble();
-                input.nextLine(); // consume newline
+                input.nextLine();
 
                 if (userInput == 0) {
-                    return -1; // Cancel signal
+                    return -1;
                 }
 
                 if (userInput >= min && userInput <= max) {
@@ -57,12 +56,12 @@ public class InputValidator {
                 }
             } catch (Exception e) {
                 System.out.println("Invalid input. Please enter a valid number, or 0 to cancel.");
-                input.nextLine(); // clear invalid input
+                input.nextLine();
             }
         } while (true);
     }
 
-    // Validate non-empty string with cancel option
+    
     public static String getNonEmptyString(String prompt) {
         String userInput;
         do {
@@ -70,7 +69,7 @@ public class InputValidator {
             userInput = input.nextLine().trim();
 
             if (userInput.equalsIgnoreCase("cancel")) {
-                return null; // Cancel signal
+                return null;
             }
 
             if (!userInput.isEmpty()) {
@@ -81,7 +80,7 @@ public class InputValidator {
         } while (true);
     }
 
-    // Validate email format with cancel option
+    
     public static String getValidEmail(String prompt) {
         String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
         Pattern pattern = Pattern.compile(emailRegex);
@@ -92,7 +91,7 @@ public class InputValidator {
             email = input.nextLine().trim();
 
             if (email.equalsIgnoreCase("cancel")) {
-                return null; // Cancel signal
+                return null;
             }
 
             if (pattern.matcher(email).matches()) {
@@ -103,7 +102,7 @@ public class InputValidator {
         } while (true);
     }
 
-    // Validate phone number with cancel option
+    
     public static String getValidPhoneNumber(String prompt) {
         String phone;
         do {
@@ -111,10 +110,10 @@ public class InputValidator {
             phone = input.nextLine().trim();
 
             if (phone.equalsIgnoreCase("cancel")) {
-                return null; // Cancel signal
+                return null;
             }
 
-            // Basic validation - at least 10 digits
+            
             if (phone.matches("\\d{10,}")) {
                 return phone;
             } else {
@@ -123,7 +122,7 @@ public class InputValidator {
         } while (true);
     }
 
-    // Validate Philippine contact number format
+    
     public static String getValidPHContactNumber(String prompt) {
         String contact;
         do {
@@ -142,7 +141,7 @@ public class InputValidator {
         } while (true);
     }
 
-    // Yes/No confirmation with cancel option
+    
     public static Boolean getConfirmation(String prompt) {
         String userInput;
         do {
@@ -150,7 +149,7 @@ public class InputValidator {
             userInput = input.nextLine().trim().toLowerCase();
 
             if (userInput.equals("cancel")) {
-                return null; // Cancel signal
+                return null;
             }
 
             if (userInput.equals("y") || userInput.equals("yes")) {
@@ -163,17 +162,17 @@ public class InputValidator {
         } while (true);
     }
 
-    // Validate menu choice with cancel option (NO HEADER VERSION)
+    
     public static int getMenuChoice(int maxOption) {
         int choice;
         do {
             System.out.print("Enter your choice (1-" + maxOption + ", or 0 to cancel): ");
             try {
                 choice = input.nextInt();
-                input.nextLine(); // consume newline
+                input.nextLine();
 
                 if (choice == 0) {
-                    return -1; // Cancel signal
+                    return -1;
                 }
 
                 if (choice >= 1 && choice <= maxOption) {
@@ -184,12 +183,12 @@ public class InputValidator {
                 }
             } catch (Exception e) {
                 System.out.println("Invalid input. Please enter a number only, or 0 to cancel.");
-                input.nextLine(); // clear invalid input
+                input.nextLine();
             }
         } while (true);
     }
 
-    // Get string with minimum length with cancel option
+    
     public static String getStringWithMinLength(String prompt, int minLength) {
         String userInput;
         do {
@@ -197,7 +196,7 @@ public class InputValidator {
             userInput = input.nextLine().trim();
 
             if (userInput.equalsIgnoreCase("cancel")) {
-                return null; // Cancel signal
+                return null;
             }
 
             if (userInput.length() >= minLength) {
@@ -209,17 +208,17 @@ public class InputValidator {
         } while (true);
     }
 
-    // Get positive integer with cancel option
+    
     public static int getPositiveInt(String prompt) {
         int userInput;
         do {
             System.out.print(prompt + " (Enter 0 to cancel): ");
             try {
                 userInput = input.nextInt();
-                input.nextLine(); // consume newline
+                input.nextLine();
 
                 if (userInput == 0) {
-                    return -1; // Cancel signal
+                    return -1;
                 }
 
                 if (userInput > 0) {
@@ -229,12 +228,12 @@ public class InputValidator {
                 }
             } catch (Exception e) {
                 System.out.println("Invalid input. Please enter a number only, or 0 to cancel.");
-                input.nextLine(); // clear invalid input
+                input.nextLine();
             }
         } while (true);
     }
 
-    // Get valid name (letters only) with cancel option
+    
     public static String getValidName(String prompt) {
         String name;
         do {
@@ -250,7 +249,7 @@ public class InputValidator {
             } else if (!name.matches("[A-Za-z ]+")) {
                 System.out.println("Name must only contain letters and spaces. Try again.\n");
             } else {
-                // Capitalize first letter of each word
+                
                 String[] words = name.split("\\s+");
                 StringBuilder capitalized = new StringBuilder();
                 for (String word : words) {
@@ -270,7 +269,7 @@ public class InputValidator {
         input.nextLine();
     }
 
-    // Validate date input with cancel option
+    
 public static LocalDate getValidDate(String prompt) {
     String dateStr;
     do {
@@ -278,7 +277,7 @@ public static LocalDate getValidDate(String prompt) {
         dateStr = input.nextLine().trim();
 
         if (dateStr.equalsIgnoreCase("cancel")) {
-            return null; // Cancel signal
+            return null;
         }
 
         try {

@@ -20,7 +20,7 @@ public class Tenant extends User {
     private Contract contract;
     private double balance;
     private String emergencyContact;
-    // REMOVED: private String idNumber;
+    
 
     public Tenant(String contactNumber, String firstName, String lastName, String password, String userID,
             String username, Role role,
@@ -33,7 +33,7 @@ public class Tenant extends User {
         this.emergencyContact = emergencyContact;
     }
 
-    // REMOVED: getIdNumber() and setIdNumber()
+    
 
     public static String generateNextTenantID() {
         LinkedList<User> users = User.getUsers();
@@ -50,7 +50,6 @@ public class Tenant extends User {
                             maxNumber = number;
                         }
                     } catch (NumberFormatException e) {
-                        // Ignore tenants with non-numeric suffixes
                     }
                 }
             }
@@ -155,7 +154,7 @@ public class Tenant extends User {
                     case 6:
                         System.out.print("Enter maintenance issue description: ");
                         String issue = sc.nextLine();
-                        // Note: Need actual Room object, using null for now
+                        
                         MaintenanceRequest request = new MaintenanceRequest("MR" + System.currentTimeMillis(), null,
                                 this, issue, new Date());
                         submitMaintenanceRequest(request);
@@ -196,7 +195,7 @@ public class Tenant extends User {
         System.out.println("Room:             " + (getRoomID() != null ? getRoomID() : "Not assigned"));
         System.out.println("Balance:          ₱" + String.format("%.2f", getBalance()));
         
-        // Contract Information
+        
         if (contract != null) {
             System.out.println("Contract Status:  " + contract.getContractStatus());
             System.out.println("Monthly Rent:     ₱" + String.format("%.2f", contract.getMonthlyRent()));
@@ -210,7 +209,7 @@ public class Tenant extends User {
     }
 
     public void viewProfile() {
-        displayProfile(); // Use the overridden method
+        displayProfile();
     }
 
     public void viewRoom(Room room) {
@@ -313,7 +312,7 @@ public class Tenant extends User {
         System.out.println("Profile updated successfully!");
     }
 
-    // Helper method to get room details
+    
     public Room getRoomDetails() {
         if (roomID != null) {
             for (Room room : DatabaseManagement.getRooms()) {

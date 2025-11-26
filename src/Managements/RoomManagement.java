@@ -13,15 +13,15 @@ public class RoomManagement {
 
     private Scanner input = new Scanner(System.in);
     private LinkedList<Room> roomList;
-    // DatabaseManagement uses static methods - access statically
+    
     private int choice;
 
-    // Parameterless constructor
+    
     public RoomManagement() {
         loadRoomsFromDatabase();
     }
 
-    // Load rooms from database on initialization
+    
     private void loadRoomsFromDatabase() {
         this.roomList = DatabaseManagement.getRooms();
         if (this.roomList == null) {
@@ -29,7 +29,7 @@ public class RoomManagement {
         }
     }
 
-    // Save rooms to database
+    
     private void saveRoomsToDatabase() {
         DatabaseManagement.saveRooms(roomList);
     }
@@ -89,7 +89,7 @@ public class RoomManagement {
     }
 
     public void viewRooms() {
-        // Reload from database to ensure we have latest data
+        
         loadRoomsFromDatabase();
 
         if (roomList.isEmpty()) {
@@ -112,7 +112,7 @@ public class RoomManagement {
         System.out.print("Enter room number: ");
         String roomNumber = input.nextLine();
 
-        // Check if room number already exists
+        
         for (Room room : roomList) {
             if (room.getRoomNumber().equals(roomNumber)) {
                 System.out.println("Room number already exists! Please use a different room number.");
@@ -167,18 +167,18 @@ public class RoomManagement {
             pricingType = RoomPricingType.per_head;
         }
 
-        // Generate room ID based on existing rooms count
+        
         String roomID = "R" + (roomList.size() + 1);
 
         Room newRoom = new Room(capacity, price, pricingType, roomID, roomNumber, RoomStatus.Vacant, roomType);
 
         roomList.add(newRoom);
-        saveRoomsToDatabase(); // Save to database
+        saveRoomsToDatabase();
         System.out.println("Room added successfully!");
     }
 
     public void editRoom() {
-        // Reload from database to ensure we have latest data
+        
         loadRoomsFromDatabase();
 
         if (roomList.isEmpty()) {
@@ -218,7 +218,7 @@ public class RoomManagement {
                 System.out.print("Enter new Room Number: ");
                 String newNumber = input.nextLine();
 
-                // Check if new room number already exists
+                
                 for (Room room : roomList) {
                     if (room.getRoomNumber().equals(newNumber) && !room.getRoomID().equals(roomToEdit.getRoomID())) {
                         System.out.println("Room number already exists! Please use a different room number.");
@@ -305,12 +305,13 @@ public class RoomManagement {
                 break;
         }
 
-        saveRoomsToDatabase(); // Save changes to database
+                saveRoomsToDatabase();
+                        saveRoomsToDatabase();
         System.out.println("Room updated successfully!");
     }
 
     public void deleteRoomMenu() {
-        // Reload from database to ensure we have latest data
+        
         loadRoomsFromDatabase();
 
         if (roomList.isEmpty()) {
@@ -324,7 +325,7 @@ public class RoomManagement {
         for (Room room : roomList) {
             if (room.getRoomID().equals(roomID)) {
                 roomList.remove(room);
-                saveRoomsToDatabase(); // Save changes to database
+                saveRoomsToDatabase();
                 System.out.println("Room " + roomID + " successfully deleted!");
                 return;
             }

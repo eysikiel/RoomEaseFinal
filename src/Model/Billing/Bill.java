@@ -77,7 +77,7 @@ public class Bill {
         for (TypesOfBill billType : TypesOfBill.values()) {
             switch (billType) {
                 case MONTHLY_PAYMENT:
-                    total += contractID.getMonthlyRent(); // Example amount
+                    total += contractID.getMonthlyRent();
                     break;
                 case WATER:
                     total += 150;
