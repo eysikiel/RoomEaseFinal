@@ -29,7 +29,6 @@ public class Applicant extends User {
 
         System.out.println("\n---- VIEW AVAILABLE ROOMS ----");
 
-        
         System.out.println("\n--- UNSORTED ROOMS ---");
         displayRooms(roomList);
 
@@ -111,7 +110,6 @@ public class Applicant extends User {
         System.out.print("Enter Viewing Time (HH:MM): ");
         String time = input.nextLine();
 
-        
         Room room = null;
         if (roomList != null) {
             for (Room r : roomList) {

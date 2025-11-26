@@ -13,15 +13,13 @@ public class RoomManagement {
 
     private Scanner input = new Scanner(System.in);
     private LinkedList<Room> roomList;
-    
+
     private int choice;
 
-    
     public RoomManagement() {
         loadRoomsFromDatabase();
     }
 
-    
     private void loadRoomsFromDatabase() {
         this.roomList = DatabaseManagement.getRooms();
         if (this.roomList == null) {
@@ -29,7 +27,6 @@ public class RoomManagement {
         }
     }
 
-    
     private void saveRoomsToDatabase() {
         DatabaseManagement.saveRooms(roomList);
     }
@@ -89,7 +86,7 @@ public class RoomManagement {
     }
 
     public void viewRooms() {
-        
+
         loadRoomsFromDatabase();
 
         if (roomList.isEmpty()) {
@@ -112,7 +109,6 @@ public class RoomManagement {
         System.out.print("Enter room number: ");
         String roomNumber = input.nextLine();
 
-        
         for (Room room : roomList) {
             if (room.getRoomNumber().equals(roomNumber)) {
                 System.out.println("Room number already exists! Please use a different room number.");
@@ -167,7 +163,6 @@ public class RoomManagement {
             pricingType = RoomPricingType.per_head;
         }
 
-        
         String roomID = "R" + (roomList.size() + 1);
 
         Room newRoom = new Room(capacity, price, pricingType, roomID, roomNumber, RoomStatus.Vacant, roomType);
@@ -178,7 +173,7 @@ public class RoomManagement {
     }
 
     public void editRoom() {
-        
+
         loadRoomsFromDatabase();
 
         if (roomList.isEmpty()) {
@@ -218,7 +213,6 @@ public class RoomManagement {
                 System.out.print("Enter new Room Number: ");
                 String newNumber = input.nextLine();
 
-                
                 for (Room room : roomList) {
                     if (room.getRoomNumber().equals(newNumber) && !room.getRoomID().equals(roomToEdit.getRoomID())) {
                         System.out.println("Room number already exists! Please use a different room number.");
@@ -305,13 +299,13 @@ public class RoomManagement {
                 break;
         }
 
-                saveRoomsToDatabase();
-                        saveRoomsToDatabase();
+        saveRoomsToDatabase();
+        saveRoomsToDatabase();
         System.out.println("Room updated successfully!");
     }
 
     public void deleteRoomMenu() {
-        
+
         loadRoomsFromDatabase();
 
         if (roomList.isEmpty()) {

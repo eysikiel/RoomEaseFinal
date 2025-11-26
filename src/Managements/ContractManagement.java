@@ -104,7 +104,6 @@ public class ContractManagement {
         System.out.println("              CREATE NEW CONTRACT                ");
         System.out.println("-------------------------------------------------");
 
-        
         LinkedList<Tenant> availableTenants = new LinkedList<>();
         for (User user : User.getUsers()) {
             if (user instanceof Tenant) {
@@ -121,7 +120,6 @@ public class ContractManagement {
             return;
         }
 
-        
         System.out.println("Available Tenants (with assigned rooms):");
         for (int i = 0; i < availableTenants.size(); i++) {
             Tenant tenant = availableTenants.get(i);
@@ -135,10 +133,9 @@ public class ContractManagement {
 
         Tenant selectedTenant = availableTenants.get(tenantChoice - 1);
 
-        
         double monthlyRent = 0.0;
         Room tenantRoom = null;
-        
+
         if (selectedTenant.getRoomID() != null) {
             for (Room room : DatabaseManagement.getRooms()) {
                 if (room.getRoomID().equals(selectedTenant.getRoomID())) {
@@ -150,7 +147,6 @@ public class ContractManagement {
             }
         }
 
-        
         if (monthlyRent <= 0) {
             monthlyRent = InputValidator.getValidDouble(1, 100000, "Enter monthly rent");
             if (monthlyRent == -1)
@@ -169,20 +165,16 @@ public class ContractManagement {
         if (endDate == null)
             return;
 
-        
         Date start = java.sql.Date.valueOf(startDate);
         Date end = java.sql.Date.valueOf(endDate);
 
-        
         if (endDate.isBefore(startDate) || endDate.isEqual(startDate)) {
             System.out.println("End date must be after start date.");
             return;
         }
 
-        
         String contractID = generateNextContractID();
-        
-        
+
         if (tenantRoom != null && tenantRoom.getStatus() == RoomStatus.Occupied) {
             System.out.println("Selected room is not vacant. Cannot create contract.");
             return;
@@ -191,24 +183,19 @@ public class ContractManagement {
         Contract newContract = new Contract(contractID, selectedTenant, tenantRoom, start, end, monthlyRent,
                 deposit, ContractStatus.Active);
 
-        
         selectedTenant.setContract(newContract);
 
-        
         selectedTenant.setBalance(selectedTenant.getBalance() + deposit);
 
-        
         if (tenantRoom != null) {
             tenantRoom.setStatus(RoomStatus.Occupied);
             DatabaseManagement.saveRooms(DatabaseManagement.getRooms());
         }
 
-        
         LinkedList<Contract> persisted = DatabaseManagement.getContracts();
         persisted.add(newContract);
         DatabaseManagement.saveContracts(persisted);
 
-        
         DatabaseManagement.saveUsers();
 
         System.out.println("\nContract created successfully!");
@@ -229,7 +216,6 @@ public class ContractManagement {
             return;
         }
 
-        
         System.out.println("Active Contracts:");
         for (int i = 0; i < activeContracts.size(); i++) {
             Contract contract = activeContracts.get(i);
@@ -245,7 +231,6 @@ public class ContractManagement {
 
         Contract selectedContract = activeContracts.get(contractChoice - 1);
 
-        
         Boolean doAdjustRent = InputValidator.getConfirmation("Do you want to adjust the monthly rent?");
         if (doAdjustRent != null && doAdjustRent) {
             double newRent = InputValidator.getValidDouble(1, 100000, "Enter new monthly rent");
@@ -257,8 +242,7 @@ public class ContractManagement {
         LocalDate newEndDate = InputValidator.getValidDate("Enter new End Date");
         if (newEndDate == null)
             return;
-        
-        
+
         java.util.Date existingEnd = selectedContract.getEndDate();
         if (existingEnd != null && !java.sql.Date.valueOf(newEndDate).after(existingEnd)) {
             System.out.println("New end date must be after the current end date.");
@@ -266,7 +250,6 @@ public class ContractManagement {
         }
         selectedContract.setEndDate(java.sql.Date.valueOf(newEndDate));
 
-        
         LinkedList<Contract> persistedRenew = DatabaseManagement.getContracts();
         for (int i = 0; i < persistedRenew.size(); i++) {
             if (persistedRenew.get(i).getContractID().equals(selectedContract.getContractID())) {
@@ -293,7 +276,6 @@ public class ContractManagement {
             return;
         }
 
-        
         System.out.println("Active Contracts:");
         for (int i = 0; i < activeContracts.size(); i++) {
             Contract contract = activeContracts.get(i);
@@ -309,16 +291,13 @@ public class ContractManagement {
         Contract selectedContract = activeContracts.get(contractChoice - 1);
         Tenant tenant = findTenantByContract(selectedContract);
 
-        
         String reason = InputValidator.getNonEmptyString("Enter termination reason");
         if (reason == null)
             return;
 
-        
         selectedContract.setContractStatus(ContractStatus.Terminated);
         selectedContract.setTerminationReason(reason);
 
-        
         if (tenant != null && tenant.getRoomID() != null) {
             for (Room room : DatabaseManagement.getRooms()) {
                 if (room.getRoomID().equals(tenant.getRoomID())) {
@@ -329,13 +308,11 @@ public class ContractManagement {
             tenant.setRoomID(null);
         }
 
-        
         contractHistory.add(selectedContract);
         if (tenant != null) {
             tenant.setContract(null);
         }
 
-        
         LinkedList<Contract> persisted = DatabaseManagement.getContracts();
         for (int i = 0; i < persisted.size(); i++) {
             if (persisted.get(i).getContractID().equals(selectedContract.getContractID())) {
@@ -375,11 +352,10 @@ public class ContractManagement {
         }
     }
 
-    
     private String generateNextContractID() {
         LinkedList<Contract> allContracts = DatabaseManagement.getContracts();
         int maxNumber = 0;
-        
+
         for (Contract contract : allContracts) {
             String contractID = contract.getContractID();
             if (contractID.startsWith("CNT")) {
@@ -389,15 +365,14 @@ public class ContractManagement {
                         maxNumber = number;
                     }
                 } catch (NumberFormatException e) {
-                    
+
                 }
             }
         }
-        
+
         return "CNT" + String.format("%02d", maxNumber + 1);
     }
 
-    
     private LinkedList<Contract> getActiveContracts() {
         LinkedList<Contract> activeContracts = new LinkedList<>();
         for (User user : User.getUsers()) {

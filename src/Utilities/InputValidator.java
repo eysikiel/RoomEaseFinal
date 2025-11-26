@@ -6,10 +6,9 @@ import java.util.regex.Pattern;
 
 public class InputValidator {
     private static Scanner input = new Scanner(System.in);
-    
+
     public static Scanner scanner = input;
 
-    
     public static int getValidInt(int min, int max, String prompt) {
         int userInput;
         do {
@@ -35,7 +34,6 @@ public class InputValidator {
         } while (true);
     }
 
-    
     public static double getValidDouble(double min, double max, String prompt) {
         double userInput;
         do {
@@ -61,7 +59,6 @@ public class InputValidator {
         } while (true);
     }
 
-    
     public static String getNonEmptyString(String prompt) {
         String userInput;
         do {
@@ -80,7 +77,6 @@ public class InputValidator {
         } while (true);
     }
 
-    
     public static String getValidEmail(String prompt) {
         String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
         Pattern pattern = Pattern.compile(emailRegex);
@@ -102,7 +98,6 @@ public class InputValidator {
         } while (true);
     }
 
-    
     public static String getValidPhoneNumber(String prompt) {
         String phone;
         do {
@@ -113,7 +108,6 @@ public class InputValidator {
                 return null;
             }
 
-            
             if (phone.matches("\\d{10,}")) {
                 return phone;
             } else {
@@ -122,7 +116,6 @@ public class InputValidator {
         } while (true);
     }
 
-    
     public static String getValidPHContactNumber(String prompt) {
         String contact;
         do {
@@ -141,7 +134,6 @@ public class InputValidator {
         } while (true);
     }
 
-    
     public static Boolean getConfirmation(String prompt) {
         String userInput;
         do {
@@ -162,7 +154,6 @@ public class InputValidator {
         } while (true);
     }
 
-    
     public static int getMenuChoice(int maxOption) {
         int choice;
         do {
@@ -188,7 +179,6 @@ public class InputValidator {
         } while (true);
     }
 
-    
     public static String getStringWithMinLength(String prompt, int minLength) {
         String userInput;
         do {
@@ -208,7 +198,6 @@ public class InputValidator {
         } while (true);
     }
 
-    
     public static int getPositiveInt(String prompt) {
         int userInput;
         do {
@@ -233,7 +222,6 @@ public class InputValidator {
         } while (true);
     }
 
-    
     public static String getValidName(String prompt) {
         String name;
         do {
@@ -249,7 +237,7 @@ public class InputValidator {
             } else if (!name.matches("[A-Za-z ]+")) {
                 System.out.println("Name must only contain letters and spaces. Try again.\n");
             } else {
-                
+
                 String[] words = name.split("\\s+");
                 StringBuilder capitalized = new StringBuilder();
                 for (String word : words) {
@@ -269,23 +257,22 @@ public class InputValidator {
         input.nextLine();
     }
 
-    
-public static LocalDate getValidDate(String prompt) {
-    String dateStr;
-    do {
-        System.out.print(prompt + " (YYYY-MM-DD, or 'cancel' to go back): ");
-        dateStr = input.nextLine().trim();
+    public static LocalDate getValidDate(String prompt) {
+        String dateStr;
+        do {
+            System.out.print(prompt + " (YYYY-MM-DD, or 'cancel' to go back): ");
+            dateStr = input.nextLine().trim();
 
-        if (dateStr.equalsIgnoreCase("cancel")) {
-            return null;
-        }
+            if (dateStr.equalsIgnoreCase("cancel")) {
+                return null;
+            }
 
-        try {
-            return LocalDate.parse(dateStr);
-        } catch (Exception e) {
-            System.out.println("Invalid date format. Please use YYYY-MM-DD format.");
-        }
-    } while (true);
-}
+            try {
+                return LocalDate.parse(dateStr);
+            } catch (Exception e) {
+                System.out.println("Invalid date format. Please use YYYY-MM-DD format.");
+            }
+        } while (true);
+    }
 
 }

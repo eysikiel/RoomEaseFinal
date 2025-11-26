@@ -46,16 +46,15 @@ public class DatabaseManagement {
     public static void loadContracts() {
         LinkedList<Model.Contract.Contract> contracts = getContracts();
 
-        
         for (Model.Contract.Contract c : contracts) {
             Model.User.Tenant tenant = c.getTenantID();
             if (tenant != null) {
-                
+
                 for (Model.User.User u : Model.User.User.getUsers()) {
                     if (u instanceof Model.User.Tenant) {
                         Model.User.Tenant t = (Model.User.Tenant) u;
                         if (tenant != null && t.getTenantID().equals(tenant.getTenantID())) {
-                            
+
                             if (c.getContractStatus() == Enums.ContractStatus.Active) {
                                 t.setContract(c);
                             }
@@ -333,8 +332,8 @@ public class DatabaseManagement {
             }
             sb.append(" }");
             if (i < contracts.size() - 1) {
-                sb.append(",\n"); 
-            }else {
+                sb.append(",\n");
+            } else {
                 sb.append('\n');
             }
         }
@@ -389,8 +388,8 @@ public class DatabaseManagement {
                     .append("\"");
             sb.append(" }");
             if (i < rooms.size() - 1) {
-                sb.append(",\n"); 
-            }else {
+                sb.append(",\n");
+            } else {
                 sb.append('\n');
             }
         }
@@ -486,7 +485,7 @@ public class DatabaseManagement {
                         String roomID = extractString(obj, "roomID");
                         String emergencyContact = extractString(obj, "emergencyContact");
                         double balance = extractDouble(obj, "balance", 0.0);
-                        
+
                         Tenant t = new Tenant(contactNumber, firstName, lastName, password, userID, username,
                                 User.Role.TENANT, tenantID == null ? userID : tenantID, roomID, null, balance,
                                 emergencyContact);
@@ -581,8 +580,8 @@ public class DatabaseManagement {
 
             sb.append(" }");
             if (i < users.size() - 1) {
-                sb.append(",\n"); 
-            }else {
+                sb.append(",\n");
+            } else {
                 sb.append('\n');
             }
         }
@@ -624,7 +623,7 @@ public class DatabaseManagement {
         try {
             File cwd = new File(".").getCanonicalFile();
             File dir = cwd;
-        
+
             for (int i = 0; i < 10 && dir != null; i++) {
                 File src = new File(dir, "src");
                 if (src.exists() && src.isDirectory()) {
@@ -634,7 +633,7 @@ public class DatabaseManagement {
             }
         } catch (IOException ignored) {
         }
-        
+
         return new File(RELATIVE_ROOMS_PATH);
     }
 

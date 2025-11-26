@@ -13,7 +13,6 @@ public class Landlord extends User {
     private DatabaseManagement databaseManager;
     private ContractManagement contractManager;
 
-    
     public Landlord(String contactNumber, String firstName, String lastName, String password, String userID,
             String username, User.Role role) {
         super(contactNumber, firstName, lastName, password, userID, username, role);
@@ -23,7 +22,6 @@ public class Landlord extends User {
         this.contractManager = new ContractManagement();
     }
 
-    
     public RoomManagement getRoomManagement() {
         return this.roomManagement;
     }
@@ -48,7 +46,6 @@ public class Landlord extends User {
         this.databaseManager = databaseManager;
     }
 
-    
     public void logout() {
         System.out.println("Landlord " + getUsername() + " logged out successfully.");
     }
@@ -118,7 +115,7 @@ public class Landlord extends User {
     public void displayLandlordMenu() {
         int choice;
         do {
-            
+
             System.out.println("-------------------------------------------------");
             System.out.println("               LANDLORD MAIN MENU                ");
             System.out.println("-------------------------------------------------");
@@ -136,7 +133,6 @@ public class Landlord extends User {
             System.out.println("[12] Log out");
             System.out.println("-------------------------------------------------");
 
-            
             choice = InputValidator.getMenuChoice(12);
             if (choice == -1) {
                 continue;
@@ -197,26 +193,22 @@ public class Landlord extends User {
         System.out.println("               EDIT LANDLORD PROFILE            ");
         System.out.println("-------------------------------------------------");
 
-        
         String firstName = InputValidator.getValidName("Enter First Name (current: " + getFirstName() + ")");
         if (firstName != null) {
             setFirstName(firstName);
         }
 
-        
         String lastName = InputValidator.getValidName("Enter Last Name (current: " + getLastName() + ")");
         if (lastName != null) {
             setLastName(lastName);
         }
 
-        
         String contactNumber = InputValidator
                 .getValidPHContactNumber("Enter Contact Number (current: " + getContactNumber() + ")");
         if (contactNumber != null) {
             setContactNumber(contactNumber);
         }
 
-        
         Boolean changePassword = InputValidator.getConfirmation("Do you want to change your password?");
         if (changePassword != null && changePassword) {
             String newPassword = InputValidator.getStringWithMinLength("Enter New Password", 6);

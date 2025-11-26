@@ -27,7 +27,6 @@ public abstract class User {
         this.role = role;
     }
 
-    
     public void setUserID(String userID) {
         this.userID = userID;
     }
@@ -92,7 +91,6 @@ public abstract class User {
         return users;
     }
 
-    
     public static String generateNextUserID(Role role) {
         String prefix;
         switch (role) {
@@ -116,7 +114,6 @@ public abstract class User {
             String candidateID = prefix + String.format("%03d", nextID);
             found = false;
 
-            
             for (User u : users) {
                 if (u.getUserID().equals(candidateID)) {
                     found = true;
@@ -162,14 +159,13 @@ public abstract class User {
         User currentUser = null;
 
         while (true) {
-            
+
             if (currentUser != null) {
                 currentUser.displayRoleMenu();
                 currentUser = null;
                 continue;
             }
 
-            
             System.out.println("----------------------------------------------------------");
             System.out.println("                   WELCOME to ROOMEASE!                   ");
             System.out.println("----------------------------------------------------------");
@@ -178,7 +174,6 @@ public abstract class User {
             System.out.println("[3] Exit");
             System.out.println("----------------------------------------------------------");
 
-            
             int choice = InputValidator.getMenuChoice(3);
             if (choice == -1) {
                 continue;
@@ -207,32 +202,27 @@ public abstract class User {
         System.out.println("----------------------------------------------------------");
 
         try {
-            
+
             String newUsername = getUniqueUsername();
             if (newUsername == null)
                 return;
 
-            
             String newPassword = InputValidator.getNonEmptyString("Enter Password");
             if (newPassword == null)
                 return;
 
-            
             String firstName = InputValidator.getValidName("Enter First Name");
             if (firstName == null)
                 return;
 
-            
             String lastName = InputValidator.getValidName("Enter Last Name");
             if (lastName == null)
                 return;
 
-            
             String contact = InputValidator.getValidPHContactNumber("Enter Contact Number");
             if (contact == null)
                 return;
 
-            
             String newUserID = generateNextUserID(Role.APPLICANT);
             User newUser = new Applicant(contact, firstName, lastName, newPassword, newUserID,
                     newUsername, Role.APPLICANT);
@@ -255,7 +245,6 @@ public abstract class User {
             if (username == null)
                 return null;
 
-            
             boolean duplicate = false;
             for (User u : users) {
                 if (u.getUsername().equals(username)) {
@@ -279,7 +268,7 @@ public abstract class User {
 
         int loginAttempts = 0;
         while (loginAttempts < 3) {
-            
+
             String usernameInput = InputValidator.getNonEmptyString("Enter Username");
             if (usernameInput == null) {
                 System.out.println("\nReturning to main menu...\n");
@@ -287,7 +276,6 @@ public abstract class User {
                 return null;
             }
 
-            
             String passwordInput = InputValidator.getNonEmptyString("Enter Password");
             if (passwordInput == null) {
                 System.out.println("\nReturning to main menu...\n");
@@ -295,7 +283,6 @@ public abstract class User {
                 return null;
             }
 
-            
             for (User u : users) {
                 if (u.verifyLogin(usernameInput, passwordInput)) {
                     System.out.println("\nLogin successful! Welcome, " + u.getFullName() + "!\n");

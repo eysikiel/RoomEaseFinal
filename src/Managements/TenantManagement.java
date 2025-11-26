@@ -102,7 +102,6 @@ public class TenantManagement {
             return;
         }
 
-        
         for (int i = 0; i < tenants.size() - 1; i++) {
             for (int j = 0; j < tenants.size() - i - 1; j++) {
                 boolean shouldSwap = (sortChoice == 1)
@@ -130,11 +129,10 @@ public class TenantManagement {
         System.out.println("-------------------------------------------------");
 
         try {
-            
+
             String tenantID = Tenant.generateNextTenantID();
             String userID = User.generateNextUserID(User.Role.TENANT);
 
-            
             String firstName = InputValidator.getValidName("Enter First Name");
             if (firstName == null) {
                 return;
@@ -150,7 +148,6 @@ public class TenantManagement {
                 return;
             }
 
-            
             String defaultPassword = "newTenant1234";
 
             String contactNumber = InputValidator.getValidPHContactNumber("Enter Contact Number (+63 9XX-XXX-XXXX)");
@@ -165,14 +162,12 @@ public class TenantManagement {
 
             double initialBalance = 0.0;
 
-            
             Tenant newTenant = new Tenant(
                     contactNumber, firstName, lastName, defaultPassword, userID,
                     username, User.Role.TENANT, tenantID, null,
                     null,
                     initialBalance, emergencyContact);
 
-            
             DatabaseManagement.addUser(newTenant);
 
             System.out.println("\nTenant registered successfully!");
@@ -192,7 +187,6 @@ public class TenantManagement {
         System.out.println("                 ASSIGN ROOM                     ");
         System.out.println("-------------------------------------------------");
 
-        
         LinkedList<Tenant> tenantsWithoutRooms = new LinkedList<>();
         for (User user : User.getUsers()) {
             if (user instanceof Tenant) {
@@ -208,7 +202,6 @@ public class TenantManagement {
             return;
         }
 
-        
         System.out.println("Tenants without rooms:");
         for (int i = 0; i < tenantsWithoutRooms.size(); i++) {
             Tenant tenant = tenantsWithoutRooms.get(i);
@@ -222,7 +215,6 @@ public class TenantManagement {
 
         Tenant selectedTenant = tenantsWithoutRooms.get(tenantChoice - 1);
 
-        
         LinkedList<Room> availableRooms = new LinkedList<>();
         for (Room room : DatabaseManagement.getRooms()) {
             if (room.getStatus().toString().equals("Vacant")) {
@@ -235,7 +227,6 @@ public class TenantManagement {
             return;
         }
 
-        
         System.out.println("Available rooms:");
         for (int i = 0; i < availableRooms.size(); i++) {
             Room room = availableRooms.get(i);
@@ -250,11 +241,9 @@ public class TenantManagement {
 
         Room selectedRoom = availableRooms.get(roomChoice - 1);
 
-        
         selectedTenant.setRoomID(selectedRoom.getRoomID());
         selectedRoom.setStatus(RoomStatus.Occupied);
 
-        
         DatabaseManagement.saveUsers();
         DatabaseManagement.saveRooms(DatabaseManagement.getRooms());
 
@@ -274,7 +263,6 @@ public class TenantManagement {
             return;
         }
 
-        
         System.out.println("Select tenant to remove:");
         for (int i = 0; i < tenants.size(); i++) {
             Tenant tenant = tenants.get(i);
@@ -289,7 +277,6 @@ public class TenantManagement {
 
         Tenant selectedTenant = tenants.get(tenantChoice - 1);
 
-        
         if (selectedTenant.getBalance() > 0) {
             System.out.println("Cannot remove tenant with pending balance: ₱"
                     + String.format("%.2f", selectedTenant.getBalance()));
@@ -299,7 +286,6 @@ public class TenantManagement {
             }
         }
 
-        
         if (selectedTenant.getRoomID() != null) {
             for (Room room : DatabaseManagement.getRooms()) {
                 if (room.getRoomID().equals(selectedTenant.getRoomID())) {
@@ -309,10 +295,8 @@ public class TenantManagement {
             }
         }
 
-        
         User.getUsers().remove(selectedTenant);
 
-        
         DatabaseManagement.saveUsers();
         DatabaseManagement.saveRooms(DatabaseManagement.getRooms());
 
@@ -336,15 +320,15 @@ public class TenantManagement {
             System.out.println("Name:             " + tenant.getFullName());
             System.out.println("Username:         " + tenant.getUsername());
             System.out.println("Contact:          " + tenant.getContactNumber());
-            
+
             System.out.println("Emergency Contact: " + tenant.getEmergencyContact());
-            System.out.println("Room ID:          " + (tenant.getRoomID() != null ? tenant.getRoomID() : "Not assigned"));
+            System.out
+                    .println("Room ID:          " + (tenant.getRoomID() != null ? tenant.getRoomID() : "Not assigned"));
             System.out.println("Balance:          ₱" + String.format("%.2f", tenant.getBalance()));
             System.out.println("=====================");
         }
     }
 
-    
     private LinkedList<Tenant> getTenants() {
         LinkedList<Tenant> tenants = new LinkedList<>();
         for (User user : User.getUsers()) {

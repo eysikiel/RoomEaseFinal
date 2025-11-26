@@ -20,7 +20,6 @@ public class Tenant extends User {
     private Contract contract;
     private double balance;
     private String emergencyContact;
-    
 
     public Tenant(String contactNumber, String firstName, String lastName, String password, String userID,
             String username, Role role,
@@ -33,12 +32,10 @@ public class Tenant extends User {
         this.emergencyContact = emergencyContact;
     }
 
-    
-
     public static String generateNextTenantID() {
         LinkedList<User> users = User.getUsers();
         int maxNumber = 0;
-        
+
         for (User user : users) {
             if (user instanceof Tenant) {
                 Tenant tenant = (Tenant) user;
@@ -54,7 +51,7 @@ public class Tenant extends User {
                 }
             }
         }
-        
+
         return "TNT" + String.format("%03d", maxNumber + 1);
     }
 
@@ -103,7 +100,8 @@ public class Tenant extends User {
         displayTenantMenu(new LinkedList<>(), null, new PriorityQueue<>());
     }
 
-    public void displayTenantMenu(LinkedList<Bill> bills, Room room, PriorityQueue<MaintenanceRequest> maintenanceQueue) {
+    public void displayTenantMenu(LinkedList<Bill> bills, Room room,
+            PriorityQueue<MaintenanceRequest> maintenanceQueue) {
         try (Scanner sc = new Scanner(System.in)) {
             boolean exit;
             do {
@@ -154,7 +152,7 @@ public class Tenant extends User {
                     case 6:
                         System.out.print("Enter maintenance issue description: ");
                         String issue = sc.nextLine();
-                        
+
                         MaintenanceRequest request = new MaintenanceRequest("MR" + System.currentTimeMillis(), null,
                                 this, issue, new Date());
                         submitMaintenanceRequest(request);
@@ -194,8 +192,7 @@ public class Tenant extends User {
         System.out.println("Emergency Contact: " + getEmergencyContact());
         System.out.println("Room:             " + (getRoomID() != null ? getRoomID() : "Not assigned"));
         System.out.println("Balance:          ₱" + String.format("%.2f", getBalance()));
-        
-        
+
         if (contract != null) {
             System.out.println("Contract Status:  " + contract.getContractStatus());
             System.out.println("Monthly Rent:     ₱" + String.format("%.2f", contract.getMonthlyRent()));
@@ -204,7 +201,7 @@ public class Tenant extends User {
         } else {
             System.out.println("Contract Status:  No active contract");
         }
-        
+
         System.out.println("-------------------------------------------------");
     }
 
@@ -312,7 +309,6 @@ public class Tenant extends User {
         System.out.println("Profile updated successfully!");
     }
 
-    
     public Room getRoomDetails() {
         if (roomID != null) {
             for (Room room : DatabaseManagement.getRooms()) {
