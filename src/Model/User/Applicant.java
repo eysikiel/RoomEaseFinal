@@ -3,6 +3,7 @@ package Model.User;
 import Enums.RequestStatus;
 import Model.Property.Room;
 import Model.Request.ViewingRequest;
+import Database.DatabaseManagement;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.Locale;
@@ -20,16 +21,41 @@ public class Applicant extends User {
             String username, Role role) {
         super(contactNumber, firstName, lastName, password, userID, username, role);
         this.applicationStatus = "None";
-        this.roomList = new LinkedList<>();
         this.viewingRequests = new LinkedList<>();
         this.input = new Scanner(System.in);
     }
 
+    public String getApplicationStatus() {
+        return applicationStatus;
+    }
+
+    public LinkedList<ViewingRequest> getViewingRequests() {
+        return viewingRequests;
+    }
+
+    public LinkedList<Room> getRoomList() {
+        return roomList;
+    }
+
+    public void setApplicationStatus(String applicationStatus) {
+        this.applicationStatus = applicationStatus;
+    }
+
+    public void setRoomList(LinkedList<Room> roomList) {
+        this.roomList = roomList;
+    }
+
+    private void loadRoomsFromDatabase() {
+        if (roomList == null) {
+            roomList = DatabaseManagement.getRooms();
+        }
+    }
+
     public void viewAvailableRooms() {
+        loadRoomsFromDatabase();
 
         System.out.println("\n---- VIEW AVAILABLE ROOMS ----");
 
-        // Show unsorted rooms first
         System.out.println("\n--- UNSORTED ROOMS ---");
         displayRooms(roomList);
 
@@ -83,6 +109,8 @@ public class Applicant extends User {
     }
 
     public void applyForRoom() {
+        loadRoomsFromDatabase();
+
         System.out.print("Enter Room ID to apply: ");
         String roomID = input.nextLine();
 
@@ -90,6 +118,20 @@ public class Applicant extends User {
             System.out.println("Invalid room ID.");
             return;
         }
+
+        boolean roomExists = false;
+        for (Room room : roomList) {
+            if (room.getRoomID().equals(roomID)) {
+                roomExists = true;
+                break;
+            }
+        }
+
+        if (!roomExists) {
+            System.out.println("Room ID not found.");
+            return;
+        }
+
         this.applicationStatus = "Pending";
         System.out.println("Application submitted for room " + roomID + ". Status: Pending");
     }
@@ -99,6 +141,8 @@ public class Applicant extends User {
     }
 
     public void scheduleViewing() {
+        loadRoomsFromDatabase();
+
         System.out.print("Enter Viewing Request ID: ");
         String requestID = input.nextLine();
 
@@ -111,7 +155,6 @@ public class Applicant extends User {
         System.out.print("Enter Viewing Time (HH:MM): ");
         String time = input.nextLine();
 
-        // Find the room object
         Room room = null;
         if (roomList != null) {
             for (Room r : roomList) {

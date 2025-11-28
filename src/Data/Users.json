@@ -3,10 +3,13 @@
     {"userID": "LND001", "username": "lyka", "password": "lykalamparero", "firstName": "Kate", "lastName": "Coach", "contactNumber": "+63 912-345-6789", "role": "LANDLORD" },
     {"userID": "APT001", "username": "johndoe", "password": "password123", "firstName": "John", "lastName": "Doe", "contactNumber": "+63 923-456-7890", "role": "APPLICANT" },
     {"userID": "APT002", "username": "kyla", "password": "laway", "firstName": "Kyla", "lastName": "Lamparero", "contactNumber": "+63 995-643-7724", "role": "APPLICANT" },
-    {"userID": "APT003", "username": "yer", "password": "yerrr", "firstName": "Justin", "lastName": "Lamparero", "contactNumber": "+63 912-345-6789", "role": "APPLICANT" },
-    {"userID": "TNT001", "username": "yer", "password": "yerrrrr", "firstName": "Justin", "lastName": "Lamparero", "contactNumber": "+63 912-345-6789", "role": "TENANT", "tenantID": "TNT001", "roomID": "", "balance": 0.0, "emergencyContact": "+63 912-345-6789" },
+    {"userID": "TNT001", "username": "juantent", "password": "password123", "firstName": "Juan", "lastName": "Dela Cruz", "contactNumber": "+63 912-345-6789", "role": "TENANT", "tenantID": "TNT001", "roomID": "", "balance": 0.0, "emergencyContact": "+63 912-345-6789" },
     {"userID": "TNT002", "username": "hai", "password": "123456", "firstName": "Hai", "lastName": "Haiii", "contactNumber": "+63 912-345-5678", "role": "TENANT", "tenantID": "TNT002", "roomID": "", "balance": 0.0, "emergencyContact": "+63 912-345-5678" },
     {"userID": "TNT003", "username": "mae", "password": "mae123", "firstName": "Faith", "lastName": "Benjamin", "contactNumber": "+63 912-345-6789", "role": "TENANT", "tenantID": "TNT003", "roomID": "", "balance": 0.0, "emergencyContact": "+63 912-345-6789" },
-    {"userID": "TNT004", "username": "jenygga", "password": "newTenant1234", "firstName": "Jenny", "lastName": "Navea", "contactNumber": "+63 987-654-3210", "role": "TENANT", "tenantID": "TNT004", "roomID": "", "balance": 1500.0, "emergencyContact": "+63 987-654-3210" }
+    {"userID": "TNT004", "username": "jenygga", "password": "newTenant1234", "firstName": "Jenny", "lastName": "Navea", "contactNumber": "+63 987-654-3210", "role": "TENANT", "tenantID": "TNT004", "roomID": "", "balance": 0.0, "emergencyContact": "+63 987-654-3210" },
+    {"userID": "APT004", "username": "maedan", "password": "maedan123", "firstName": "Mae", "lastName": "Daniella", "contactNumber": "+63 956-162-0716", "role": "APPLICANT" },
+    {"userID": "APT005", "username": "pearlas", "password": "pearl123", "firstName": "Pearl", "lastName": "Bantillo", "contactNumber": "+63 990-875-9736", "role": "APPLICANT" },
+    {"userID": "APT003", "username": "jenny", "password": "jenny123", "firstName": "Jenny", "lastName": "Navea", "contactNumber": "+63 960-311-2585", "role": "APPLICANT" },
+    {"userID": "APT006", "username": "Keia", "password": "pasword123", "firstName": "Keia", "lastName": "Amada", "contactNumber": "+63 988-163-3475", "role": "APPLICANT" }
   ]
 }

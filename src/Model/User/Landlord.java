@@ -9,21 +9,19 @@ import Managements.ContractManagement;
 public class Landlord extends User {
 
     private RoomManagement roomManagement;
-    private TenantManagement tenantManagement; // Add this
+    private TenantManagement tenantManagement; 
     private DatabaseManagement databaseManager;
     private ContractManagement contractManager;
 
-    // 7-parameter constructor
     public Landlord(String contactNumber, String firstName, String lastName, String password, String userID,
             String username, User.Role role) {
         super(contactNumber, firstName, lastName, password, userID, username, role);
         this.databaseManager = new DatabaseManagement();
         this.roomManagement = new RoomManagement();
-        this.tenantManagement = new TenantManagement(); // Initialize tenant management
+        this.tenantManagement = new TenantManagement(); 
         this.contractManager = new ContractManagement();
     }
 
-    // Getters and Setters
     public RoomManagement getRoomManagement() {
         return this.roomManagement;
     }
@@ -48,7 +46,6 @@ public class Landlord extends User {
         this.databaseManager = databaseManager;
     }
 
-    // Implemented methods
     public void logout() {
         System.out.println("Landlord " + getUsername() + " logged out successfully.");
     }
@@ -61,7 +58,7 @@ public class Landlord extends User {
         System.out.println("Name:           " + getFirstName() + " " + getLastName());
         System.out.println("Username:       " + getUsername());
         System.out.println("Contact:        " + getContactNumber());
-        System.out.println("Landlord ID:    " + getUserID()); // Now shows LND001
+        System.out.println("Landlord ID:    " + getUserID()); 
         System.out.println("Role:           " + getRole());
         System.out.println("-------------------------------------------------");
     }
@@ -72,7 +69,7 @@ public class Landlord extends User {
 
     public void accessTenantManagement() {
         System.out.println("Opening Tenant Management...");
-        getTenantManagement().displayMenu(); // Call instance method
+        getTenantManagement().displayMenu(); 
     }
 
     public void accessBilling() {
@@ -118,7 +115,6 @@ public class Landlord extends User {
     public void displayLandlordMenu() {
         int choice;
         do {
-            // DISPLAY THE MENU FIRST
             System.out.println("-------------------------------------------------");
             System.out.println("               LANDLORD MAIN MENU                ");
             System.out.println("-------------------------------------------------");
@@ -136,10 +132,9 @@ public class Landlord extends User {
             System.out.println("[12] Log out");
             System.out.println("-------------------------------------------------");
 
-            // THEN GET THE CHOICE (NO MENU TITLE PARAMETER)
             choice = InputValidator.getMenuChoice(12);
             if (choice == -1) {
-                continue; // User cancelled, show menu again
+                continue; 
             }
             handleLandlordChoice(choice);
         } while (choice != 12);
@@ -197,26 +192,22 @@ public class Landlord extends User {
         System.out.println("               EDIT LANDLORD PROFILE            ");
         System.out.println("-------------------------------------------------");
 
-        // Edit First Name
         String firstName = InputValidator.getValidName("Enter First Name (current: " + getFirstName() + ")");
         if (firstName != null) {
             setFirstName(firstName);
         }
 
-        // Edit Last Name
         String lastName = InputValidator.getValidName("Enter Last Name (current: " + getLastName() + ")");
         if (lastName != null) {
             setLastName(lastName);
         }
 
-        // Edit Contact Number
         String contactNumber = InputValidator
                 .getValidPHContactNumber("Enter Contact Number (current: " + getContactNumber() + ")");
         if (contactNumber != null) {
             setContactNumber(contactNumber);
         }
 
-        // Edit Password with confirmation
         Boolean changePassword = InputValidator.getConfirmation("Do you want to change your password?");
         if (changePassword != null && changePassword) {
             String newPassword = InputValidator.getStringWithMinLength("Enter New Password", 6);

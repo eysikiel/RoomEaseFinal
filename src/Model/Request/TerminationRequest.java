@@ -75,10 +75,8 @@ public class TerminationRequest extends Requests {
 
     public double calculateRefund() {
         if (isEarlyTermination()) {
-            // Apply early termination penalty (e.g., lose 1 month rent)
             return Math.max(0, contractID.getDeposit() - contractID.getMonthlyRent());
         } else {
-            // Full deposit refund if not early termination
             return contractID.getDeposit();
         }
     }

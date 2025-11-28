@@ -27,7 +27,6 @@ public abstract class User {
         this.role = role;
     }
 
-    // Getter and setter methods
     public void setUserID(String userID) {
         this.userID = userID;
     }
@@ -92,7 +91,6 @@ public abstract class User {
         return users;
     }
 
-    // UPDATED ID GENERATION METHOD
     public static String generateNextUserID(Role role) {
         String prefix;
         switch (role) {
@@ -116,7 +114,6 @@ public abstract class User {
             String candidateID = prefix + String.format("%03d", nextID);
             found = false;
 
-            // Check if this ID already exists
             for (User u : users) {
                 if (u.getUserID().equals(candidateID)) {
                     found = true;
@@ -162,14 +159,12 @@ public abstract class User {
         User currentUser = null;
 
         while (true) {
-            // If user is logged in, show role menu instead
             if (currentUser != null) {
                 currentUser.displayRoleMenu();
-                currentUser = null; // Reset after returning from role menu
+                currentUser = null;
                 continue;
             }
 
-            // DISPLAY THE MENU FIRST
             System.out.println("----------------------------------------------------------");
             System.out.println("                   WELCOME to ROOMEASE!                   ");
             System.out.println("----------------------------------------------------------");
@@ -178,10 +173,9 @@ public abstract class User {
             System.out.println("[3] Exit");
             System.out.println("----------------------------------------------------------");
 
-            // THEN GET THE CHOICE (NO MENU TITLE PARAMETER)
             int choice = InputValidator.getMenuChoice(3);
             if (choice == -1) {
-                continue; // User cancelled, show menu again
+                continue; 
             }
 
             switch (choice) {
@@ -207,37 +201,31 @@ public abstract class User {
         System.out.println("----------------------------------------------------------");
 
         try {
-            // Get username with uniqueness check
             String newUsername = getUniqueUsername();
             if (newUsername == null)
-                return; // User cancelled
+                return; 
 
-            // Get password
             String newPassword = InputValidator.getNonEmptyString("Enter Password");
             if (newPassword == null)
-                return; // User cancelled
+                return;
 
-            // Get first name
             String firstName = InputValidator.getValidName("Enter First Name");
             if (firstName == null)
-                return; // User cancelled
+                return; 
 
-            // Get last name
             String lastName = InputValidator.getValidName("Enter Last Name");
             if (lastName == null)
-                return; // User cancelled
+                return;
 
-            // Get contact number
             String contact = InputValidator.getValidPHContactNumber("Enter Contact Number");
             if (contact == null)
-                return; // User cancelled
+                return; 
 
-            // UPDATED: Generate ID with APPLICANT role
             String newUserID = generateNextUserID(Role.APPLICANT);
             User newUser = new Applicant(contact, firstName, lastName, newPassword, newUserID,
                     newUsername, Role.APPLICANT);
 
-            DatabaseManagement.addUser(newUser); // addUser persists and adds to in-memory list
+            DatabaseManagement.addUser(newUser); 
             System.out.println("\nAccount created successfully for " + newUser.getFullName() + "!\n");
             System.out.println("Your Applicant ID: " + newUserID);
             System.out.println("----------------------------------------------------------");
@@ -253,9 +241,8 @@ public abstract class User {
         while (true) {
             username = InputValidator.getNonEmptyString("Enter Username");
             if (username == null)
-                return null; // User cancelled
+                return null; 
 
-            // Check for duplicate username
             boolean duplicate = false;
             for (User u : users) {
                 if (u.getUsername().equals(username)) {
@@ -279,23 +266,20 @@ public abstract class User {
 
         int loginAttempts = 0;
         while (loginAttempts < 3) {
-            // Get username
             String usernameInput = InputValidator.getNonEmptyString("Enter Username");
             if (usernameInput == null) {
                 System.out.println("\nReturning to main menu...\n");
                 System.out.println("----------------------------------------------------------");
-                return null; // User cancelled
+                return null; 
             }
 
-            // Get password
             String passwordInput = InputValidator.getNonEmptyString("Enter Password");
             if (passwordInput == null) {
                 System.out.println("\nReturning to main menu...\n");
                 System.out.println("----------------------------------------------------------");
-                return null; // User cancelled
+                return null;
             }
 
-            // Verify login credentials
             for (User u : users) {
                 if (u.verifyLogin(usernameInput, passwordInput)) {
                     System.out.println("\nLogin successful! Welcome, " + u.getFullName() + "!\n");
@@ -313,5 +297,19 @@ public abstract class User {
         System.out.println("\nToo many failed login attempts. Returning to main menu.\n");
         System.out.println("----------------------------------------------------------");
         return null;
+    }
+    
+    public static void convertApplicantToTenant(Applicant applicant, String emergencyContact) {
+        String tenantID = Tenant.generateNextTenantID();
+        
+        Tenant tenant = new Tenant(applicant, tenantID, emergencyContact);
+        
+        users.remove(applicant);
+        
+        users.add(tenant);
+        
+        DatabaseManagement.saveUsers();
+        
+        System.out.println("Applicant " + applicant.getFullName() + " has been converted to Tenant with ID: " + tenantID);
     }
 }

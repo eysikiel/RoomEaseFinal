@@ -21,7 +21,8 @@ public class Room {
             String roomID, String roomNumber, RoomStatus status, RoomType type) {
 
         this.capacity = capacity;
-        this.price = price;
+        this.setPrice(price);
+       // this.price = price;
         this.pricingType = pricingType;
         this.roomID = roomID;
         this.roomNumber = roomNumber;
@@ -42,10 +43,10 @@ public class Room {
     }
 
     public void setPrice(double price) {
-        if (price >= 0) {
+        if (price > 0) {
             this.price = price;
         } else {
-            System.out.println("Invalid price. Price cannot be negative.");
+            System.out.println("Invalid price. Price cannot be zero or negative.");
         }
     }
 
