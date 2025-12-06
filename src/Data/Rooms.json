@@ -1,6 +1,4 @@
 {
   "rooms": [
-    {"roomID": "R1", "roomNumber": "R1", "roomType": "Double", "price": 0.0, "capacity": 2, "pricingType": "per_head", "status": "Vacant" },
-    {"roomID": "R2", "roomNumber": "R2", "roomType": "Single", "price": 0.0, "capacity": 5, "pricingType": "per_head", "status": "Vacant" }
   ]
 }

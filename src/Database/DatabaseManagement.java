@@ -215,9 +215,13 @@ public class DatabaseManagement {
                     }
                 }
 
-                Room room = new Room(capacity, price, pricingType, roomID, roomNumber, status, roomType);
-                rooms.add(room);
+                // Before creating Room object in getRooms():
+                double validatedPrice = price;
+                if (price <= 0) {
+                    validatedPrice = 100.0; // Set default price
+                }
 
+                Room room = new Room(capacity, validatedPrice, pricingType, roomID, roomNumber, status, roomType);
             } catch (Exception e) {
                 System.out.println("Error parsing room object: " + e.getMessage());
             }
@@ -227,7 +231,6 @@ public class DatabaseManagement {
     }
 
     // ==================== CONTRACT MANAGEMENT METHODS ====================
-
     public static LinkedList<Model.Contract.Contract> getContracts() {
         LinkedList<Model.Contract.Contract> contracts = new LinkedList<>();
         File f = getContractsFile();
@@ -793,7 +796,6 @@ public class DatabaseManagement {
     }
 
     // ==================== USER MANAGEMENT METHODS (existing) ====================
-
     private static long extractLong(String json, String key, long defaultVal) {
         Pattern p = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:\\s*([0-9]+)");
         Matcher m = p.matcher(json);
