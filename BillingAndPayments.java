@@ -37,7 +37,7 @@ public class BillingAndPayments {
 
     public void generateMonthlyBills() {
         System.out.println("Generating monthly bills...");
-        for (Tenant tenant : TenantDatabase.getAllTenants()) {
+        for (Tenant tenant : TenantManagement.getAllTenants()) {
             double baseRent = generateBaseRent(tenant.getTenantID());
             double electricity = computeSubmeteredElectricity(
                     tenant.getTenantID(),
@@ -59,7 +59,7 @@ public class BillingAndPayments {
     }
 
     public double generateBaseRent(String tenantID) {
-        Tenant tenant = TenantDatabase.findTenant(tenantID);
+        Tenant tenant = TenantManagement.findTenant(tenantID);
         if (tenant == null) return 0;
         return tenant.getMonthlyRent();
     }
