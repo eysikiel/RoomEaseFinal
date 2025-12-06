@@ -1,20 +1,45 @@
 package Model.Request;
 
+import Model.User.Applicant;
+import Model.Property.Room;
+import Enums.RequestStatus;
+
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import Enums.RequestStatus;
-import Model.Property.Room;
-import Model.User.Applicant;
-
-public class ViewingRequest extends Requests {
+/**
+ * Data model for a Viewing Request.
+ * This class provides the fields and simple accessors/mutators used by
+ * management and database components.
+ */
+public class ViewingRequest {
+    private String requestID;
+    private Room roomID;
+    private RequestStatus requestStatus;
     private Applicant applicantID;
     private Date scheduledDate;
 
+    private static final SimpleDateFormat displayFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
     public ViewingRequest(String requestID, Room roomID, RequestStatus requestStatus, Applicant applicantID,
             Date scheduledDate) {
-        super(requestID, roomID, requestStatus);
+        this.requestID = requestID;
+        this.roomID = roomID;
+        this.requestStatus = requestStatus;
         this.applicantID = applicantID;
         this.scheduledDate = scheduledDate;
+    }
+
+    public String getRequestID() {
+        return requestID;
+    }
+
+    public Room getRoomID() {
+        return roomID;
+    }
+
+    public RequestStatus getRequestStatus() {
+        return requestStatus;
     }
 
     public Applicant getApplicantID() {
@@ -25,21 +50,23 @@ public class ViewingRequest extends Requests {
         return scheduledDate;
     }
 
-    public void setApplicantID(Applicant applicantID) {
-        this.applicantID = applicantID;
+    public void setRequestStatus(RequestStatus status) {
+        this.requestStatus = status;
     }
 
-    public void setScheduledDate(Date scheduledDate) {
-        this.scheduledDate = scheduledDate;
+    public void setScheduledDate(Date d) {
+        this.scheduledDate = d;
     }
 
-    @Override
+    /**
+     * Display a human-readable representation of the viewing request.
+     * Management/UI classes call this for simple console output.
+     */
     public void displayRequest() {
-        System.out.println("=== Viewing Request ===");
-        System.out.println("Request ID: " + this.getRequestID());
-        System.out.println("Applicant: " + this.getApplicantID().getFullName());
-        System.out.println("Room: " + this.getRoomID().getRoomID());
-        System.out.println("Date Scheduled: " + this.getScheduledDate());
-        System.out.println("Status: " + this.getRequestStatus());
+        System.out.println("Request ID: " + requestID);
+        System.out.println("Room: " + (roomID != null ? roomID.getRoomNumber() : "N/A"));
+        System.out.println("Applicant: " + (applicantID != null ? applicantID.getFullName() : "N/A"));
+        System.out.println("Scheduled: " + (scheduledDate != null ? displayFormat.format(scheduledDate) : "N/A"));
+        System.out.println("Status: " + (requestStatus != null ? requestStatus.name() : "N/A"));
     }
 }

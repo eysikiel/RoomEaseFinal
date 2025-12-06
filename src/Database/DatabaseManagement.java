@@ -1,5 +1,15 @@
 package Database;
 
+import Enums.RequestStatus;
+import Enums.RoomPricingType;
+import Enums.RoomStatus;
+import Enums.RoomType;
+import Model.Property.Room;
+import Model.Request.ViewingRequest;
+import Model.User.Applicant;
+import Model.User.Landlord;
+import Model.User.Tenant;
+import Model.User.User;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,17 +22,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import Model.User.Applicant;
-import Model.User.Landlord;
-import Model.User.Tenant;
-import Model.User.User;
-import Model.Property.Room;
-import Enums.RoomPricingType;
-import Enums.RoomStatus;
-import Enums.RoomType;
 
 public class DatabaseManagement {
 
@@ -30,12 +32,15 @@ public class DatabaseManagement {
     private static final String RELATIVE_ROOMS_PATH = "src" + File.separator + "Data" + File.separator + "Rooms.json";
     private static final String RELATIVE_CONTRACTS_PATH = "src" + File.separator + "Data" + File.separator
             + "Contracts.json";
+    private static final String RELATIVE_REQUESTS_PATH = "src" + File.separator + "Data" + File.separator
+            + "Requests.json";
 
     public static void init() {
         try {
             ensureUsersFileExists();
             ensureRoomsFileExists();
             ensureContractsFileExists();
+            ensureRequestsFileExists();
             loadUsers();
             loadContracts();
         } catch (Exception e) {
@@ -49,10 +54,12 @@ public class DatabaseManagement {
         for (Model.Contract.Contract c : contracts) {
             Model.User.Tenant tenant = c.getTenantID();
             if (tenant != null) {
+
                 for (Model.User.User u : Model.User.User.getUsers()) {
                     if (u instanceof Model.User.Tenant) {
                         Model.User.Tenant t = (Model.User.Tenant) u;
                         if (tenant != null && t.getTenantID().equals(tenant.getTenantID())) {
+
                             if (c.getContractStatus() == Enums.ContractStatus.Active) {
                                 t.setContract(c);
                             }
@@ -104,105 +111,6 @@ public class DatabaseManagement {
         }
     }
 
-    // ==================== ROOM MANAGEMENT METHODS ====================
-
-    public static LinkedList<Room> getRooms() {
-    LinkedList<Room> rooms = new LinkedList<>();
-    File f = getRoomsFile();
-    if (!f.exists()) {
-        try {
-            ensureRoomsFileExists();
-        } catch (IOException e) {
-            System.out.println("Error creating rooms file: " + e.getMessage());
-            return rooms;
-        }
-    }
-
-    StringBuilder sb = new StringBuilder();
-    try (BufferedReader br = new BufferedReader(
-            new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))) {
-        String line;
-        while ((line = br.readLine()) != null) {
-            sb.append(line).append('\n');
-        }
-    } catch (Exception e) {
-        System.out.println("Error reading rooms file: " + e.getMessage());
-        return rooms;
-    }
-
-    String content = sb.toString();
-    
-    // FIX: Find the rooms array specifically
-    int roomsStart = content.indexOf("\"rooms\"");
-    if (roomsStart == -1) {
-        return rooms;
-    }
-    
-    // Find the array start after "rooms"
-    int arrayStart = content.indexOf('[', roomsStart);
-    int arrayEnd = content.indexOf(']', arrayStart);
-    
-    if (arrayStart == -1 || arrayEnd == -1 || arrayEnd <= arrayStart) {
-        return rooms;
-    }
-
-    String arrayContent = content.substring(arrayStart + 1, arrayEnd).trim();
-    if (arrayContent.isEmpty()) {
-        return rooms;
-    }
-
-
-    List<String> objects = splitJsonObjects(arrayContent);
-
-    for (String obj : objects) {
-        try {
-            String roomID = extractString(obj, "roomID");
-            String roomNumber = extractString(obj, "roomNumber");
-            String roomTypeStr = extractString(obj, "roomType");
-            double price = extractDouble(obj, "price", 0.0);
-            int capacity = extractInt(obj, "capacity", 1);
-            String pricingTypeStr = extractString(obj, "pricingType");
-            String statusStr = extractString(obj, "status");
-
-            // DEBUG
-            //System.out.println("DEBUG: Room " + roomNumber + " - Price: " + price);
-
-            RoomType roomType = RoomType.Single;
-            if (roomTypeStr != null) {
-                try {
-                    roomType = RoomType.valueOf(roomTypeStr);
-                } catch (Exception ignored) {
-                }
-            }
-
-            RoomPricingType pricingType = RoomPricingType.per_head;
-            if (pricingTypeStr != null) {
-                try {
-                    pricingType = RoomPricingType.valueOf(pricingTypeStr);
-                } catch (Exception ignored) {
-                }
-            }
-
-            RoomStatus status = RoomStatus.Vacant;
-            if (statusStr != null) {
-                try {
-                    status = RoomStatus.valueOf(statusStr);
-                } catch (Exception ignored) {
-                }
-            }
-
-            Room room = new Room(capacity, price, pricingType, roomID, roomNumber, status, roomType);
-            rooms.add(room);
-
-        } catch (Exception e) {
-            System.out.println("Error parsing room object: " + e.getMessage());
-        }
-    }
-
-    return rooms;
-}
-
-    // ==================== CONTRACT MANAGEMENT METHODS ====================
     private static void ensureContractsFileExists() throws java.io.IOException {
         File f = getContractsFile();
         File parent = f.getParentFile();
@@ -216,6 +124,109 @@ public class DatabaseManagement {
             }
         }
     }
+
+    private static void ensureRequestsFileExists() throws IOException {
+        File f = getRequestsFile();
+        File parent = f.getParentFile();
+        if (parent != null && !parent.exists()) {
+            parent.mkdirs();
+        }
+        if (!f.exists()) {
+            try (BufferedWriter bw = new BufferedWriter(
+                    new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8))) {
+                bw.write("{\n  \"viewingRequests\": [],\n  \"maintenanceRequests\": [],\n  \"otherRequests\": []\n}");
+            }
+        }
+    }
+
+    // ==================== ROOM MANAGEMENT METHODS ====================
+    /**
+     * Load rooms from `src/Data/Rooms.json`
+     */
+    public static LinkedList<Room> getRooms() {
+        LinkedList<Room> rooms = new LinkedList<>();
+        File f = getRoomsFile();
+        if (!f.exists()) {
+            try {
+                ensureRoomsFileExists();
+            } catch (IOException e) {
+                System.out.println("Error creating rooms file: " + e.getMessage());
+                return rooms;
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line).append('\n');
+            }
+        } catch (Exception e) {
+            System.out.println("Error reading rooms file: " + e.getMessage());
+            return rooms;
+        }
+
+        String content = sb.toString();
+        int start = content.indexOf('[');
+        int end = content.lastIndexOf(']');
+        if (start == -1 || end == -1 || end <= start) {
+            return rooms;
+        }
+
+        String array = content.substring(start + 1, end).trim();
+        if (array.isEmpty()) {
+            return rooms;
+        }
+
+        List<String> objects = splitJsonObjects(array);
+
+        for (String obj : objects) {
+            try {
+                String roomID = extractString(obj, "roomID");
+                String roomNumber = extractString(obj, "roomNumber");
+                String roomTypeStr = extractString(obj, "roomType");
+                double price = extractDouble(obj, "price", 0.0);
+                int capacity = extractInt(obj, "capacity", 1);
+                String pricingTypeStr = extractString(obj, "pricingType");
+                String statusStr = extractString(obj, "status");
+
+                RoomType roomType = RoomType.Single;
+                if (roomTypeStr != null) {
+                    try {
+                        roomType = RoomType.valueOf(roomTypeStr);
+                    } catch (Exception ignored) {
+                    }
+                }
+
+                RoomPricingType pricingType = RoomPricingType.per_head;
+                if (pricingTypeStr != null) {
+                    try {
+                        pricingType = RoomPricingType.valueOf(pricingTypeStr);
+                    } catch (Exception ignored) {
+                    }
+                }
+
+                RoomStatus status = RoomStatus.Vacant;
+                if (statusStr != null) {
+                    try {
+                        status = RoomStatus.valueOf(statusStr);
+                    } catch (Exception ignored) {
+                    }
+                }
+
+                Room room = new Room(capacity, price, pricingType, roomID, roomNumber, status, roomType);
+                rooms.add(room);
+
+            } catch (Exception e) {
+                System.out.println("Error parsing room object: " + e.getMessage());
+            }
+        }
+
+        return rooms;
+    }
+
+    // ==================== CONTRACT MANAGEMENT METHODS ====================
 
     public static LinkedList<Model.Contract.Contract> getContracts() {
         LinkedList<Model.Contract.Contract> contracts = new LinkedList<>();
@@ -245,7 +256,7 @@ public class DatabaseManagement {
         int start = content.indexOf('[');
         int end = content.lastIndexOf(']');
         if (start == -1 || end == -1 || end <= start) {
-            return contracts; // nothing to load
+            return contracts;
         }
 
         String array = content.substring(start + 1, end).trim();
@@ -314,9 +325,6 @@ public class DatabaseManagement {
         return contracts;
     }
 
-    /**
-     * Save contracts to `src/Data/Contracts.json`
-     */
     public static void saveContracts(LinkedList<Model.Contract.Contract> contracts) {
         File f = getContractsFile();
         try {
@@ -348,8 +356,8 @@ public class DatabaseManagement {
             }
             sb.append(" }");
             if (i < contracts.size() - 1) {
-                sb.append(",\n"); 
-            }else {
+                sb.append(",\n");
+            } else {
                 sb.append('\n');
             }
         }
@@ -364,19 +372,177 @@ public class DatabaseManagement {
         }
     }
 
-    private static long extractLong(String json, String key, long defaultVal) {
-        Pattern p = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:\\s*([0-9]+)");
-        Matcher m = p.matcher(json);
-        if (m.find()) {
+    // ==================== VIEWING REQUEST MANAGEMENT METHODS ====================
+    /**
+     * Load viewing requests from `src/Data/Requests.json`
+     */
+    public static Queue<ViewingRequest> getViewingRequests() {
+        Queue<ViewingRequest> requests = new LinkedList<>();
+        File f = getRequestsFile();
+        if (!f.exists()) {
             try {
-                return Long.parseLong(m.group(1));
-            } catch (Exception e) {
-                return defaultVal;
+                ensureRequestsFileExists();
+            } catch (IOException e) {
+                System.out.println("Error creating requests file: " + e.getMessage());
+                return requests;
             }
         }
-        return defaultVal;
+
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line).append('\n');
+            }
+        } catch (Exception e) {
+            System.out.println("Error reading requests file: " + e.getMessage());
+            return requests;
+        }
+
+        String content = sb.toString();
+
+        // Extract viewingRequests array from JSON
+        String viewingRequestsArray = extractJsonArray(content, "viewingRequests");
+        if (viewingRequestsArray == null || viewingRequestsArray.trim().isEmpty()) {
+            return requests;
+        }
+
+        List<String> objects = splitJsonObjects(viewingRequestsArray);
+
+        for (String obj : objects) {
+            try {
+                String requestID = extractString(obj, "requestID");
+                String roomID = extractString(obj, "roomID");
+                String statusStr = extractString(obj, "status");
+                String applicantID = extractString(obj, "applicantID");
+                long scheduledMillis = extractLong(obj, "scheduledDate", -1L);
+
+                // Find room
+                Room room = null;
+                if (roomID != null) {
+                    for (Room r : getRooms()) {
+                        if (r.getRoomID().equals(roomID)) {
+                            room = r;
+                            break;
+                        }
+                    }
+                }
+
+                // Find applicant
+                Applicant applicant = null;
+                if (applicantID != null) {
+                    for (User u : User.getUsers()) {
+                        if (u instanceof Applicant && u.getUserID().equals(applicantID)) {
+                            applicant = (Applicant) u;
+                            break;
+                        }
+                    }
+                }
+
+                RequestStatus status = RequestStatus.PENDING;
+                if (statusStr != null) {
+                    try {
+                        status = RequestStatus.valueOf(statusStr);
+                    } catch (Exception ignored) {
+                    }
+                }
+
+                java.util.Date scheduledDate = scheduledMillis > 0 ? new java.util.Date(scheduledMillis)
+                        : new java.util.Date();
+
+                ViewingRequest request = new ViewingRequest(requestID, room, status, applicant, scheduledDate);
+                requests.add(request);
+
+            } catch (Exception e) {
+                System.out.println("Error parsing viewing request object: " + e.getMessage());
+            }
+        }
+
+        return requests;
     }
 
+    /**
+     * Save viewing requests to `src/Data/Requests.json`
+     */
+    public static void saveViewingRequests(Queue<ViewingRequest> requests) {
+        File f = getRequestsFile();
+        try {
+            ensureRequestsFileExists();
+        } catch (IOException e) {
+            System.out.println("Error ensuring requests file: " + e.getMessage());
+            return;
+        }
+
+        // Read existing file to preserve other request types
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line).append('\n');
+            }
+        } catch (Exception e) {
+            // If can't read, we'll create fresh
+            sb = new StringBuilder();
+        }
+
+        String existingContent = sb.toString();
+
+        // Start building new JSON
+        StringBuilder newContent = new StringBuilder();
+        newContent.append("{\n");
+
+        // Add viewingRequests
+        newContent.append("  \"viewingRequests\": [\n");
+        int i = 0;
+        int total = requests == null ? 0 : requests.size();
+        if (requests != null) {
+            for (ViewingRequest vr : requests) {
+                newContent.append("    {");
+                newContent.append("\"requestID\": \"").append(escape(vr.getRequestID())).append("\",");
+                newContent.append(" \"roomID\": \"").append(escape(vr.getRoomID().getRoomID())).append("\",");
+                newContent.append(" \"applicantID\": \"").append(escape(vr.getApplicantID().getUserID())).append("\",");
+                newContent.append(" \"status\": \"").append(vr.getRequestStatus().name()).append("\",");
+                newContent.append(" \"scheduledDate\": ").append(vr.getScheduledDate().getTime());
+                newContent.append(" }");
+                if (i < total - 1) {
+                    newContent.append(",\n");
+                } else {
+                    newContent.append("\n");
+                }
+                i++;
+            }
+        }
+        newContent.append("  ],\n");
+
+        // Try to preserve existing maintenanceRequests if they exist
+        String maintenanceArray = extractJsonArray(existingContent, "maintenanceRequests");
+        if (maintenanceArray != null && !maintenanceArray.trim().isEmpty()) {
+            newContent.append("  \"maintenanceRequests\": ").append(maintenanceArray).append(",\n");
+        } else {
+            newContent.append("  \"maintenanceRequests\": [],\n");
+        }
+
+        // Try to preserve existing otherRequests if they exist
+        String otherArray = extractJsonArray(existingContent, "otherRequests");
+        if (otherArray != null && !otherArray.trim().isEmpty()) {
+            newContent.append("  \"otherRequests\": ").append(otherArray).append("\n");
+        } else {
+            newContent.append("  \"otherRequests\": []\n");
+        }
+
+        newContent.append("}");
+
+        try (BufferedWriter bw = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(f, false), StandardCharsets.UTF_8))) {
+            bw.write(newContent.toString());
+        } catch (Exception e) {
+            System.out.println("Error writing requests file: " + e.getMessage());
+        }
+    }
+
+    // ==================== COMMON HELPER METHODS ====================
     /**
      * Save rooms to `src/Data/Rooms.json`
      */
@@ -407,8 +573,8 @@ public class DatabaseManagement {
                     .append("\"");
             sb.append(" }");
             if (i < rooms.size() - 1) {
-                sb.append(",\n"); 
-            }else {
+                sb.append(",\n");
+            } else {
                 sb.append('\n');
             }
         }
@@ -423,6 +589,7 @@ public class DatabaseManagement {
         }
     }
 
+    // ==================== USER MANAGEMENT METHODS ====================
     private static int extractInt(String json, String key, int defaultVal) {
         Pattern p = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:\\s*([0-9]+)");
         Matcher m = p.matcher(json);
@@ -436,10 +603,6 @@ public class DatabaseManagement {
         return defaultVal;
     }
 
-    // ==================== USER MANAGEMENT METHODS (existing) ====================
-    /**
-     * Load users from `src/Data/Users.json` into User.getUsers()
-     */
     public static void loadUsers() {
         File f = getUsersFile();
         if (!f.exists()) {
@@ -464,11 +627,10 @@ public class DatabaseManagement {
         }
 
         String content = sb.toString();
-        // find the users array
         int start = content.indexOf('[');
         int end = content.lastIndexOf(']');
         if (start == -1 || end == -1 || end <= start) {
-            return; // nothing to load
+            return;
         }
 
         String array = content.substring(start + 1, end).trim();
@@ -476,7 +638,6 @@ public class DatabaseManagement {
             return;
         }
 
-        // split objects by '},' boundary but keep braces
         List<String> objects = splitJsonObjects(array);
 
         for (String obj : objects) {
@@ -508,6 +669,7 @@ public class DatabaseManagement {
                         String roomID = extractString(obj, "roomID");
                         String emergencyContact = extractString(obj, "emergencyContact");
                         double balance = extractDouble(obj, "balance", 0.0);
+
                         Tenant t = new Tenant(contactNumber, firstName, lastName, password, userID, username,
                                 User.Role.TENANT, tenantID == null ? userID : tenantID, roomID, null, balance,
                                 emergencyContact);
@@ -524,54 +686,6 @@ public class DatabaseManagement {
             }
         }
     }
-
-    private static List<String> splitJsonObjects(String arrayContent) {
-        List<String> out = new ArrayList<>();
-        int brace = 0;
-        int last = 0;
-        for (int i = 0; i < arrayContent.length(); i++) {
-            char c = arrayContent.charAt(i);
-            if (c == '{') {
-                if (brace == 0) {
-                    last = i;
-                }
-                brace++;
-            } else if (c == '}') {
-                brace--;
-                if (brace == 0) {
-                    out.add(arrayContent.substring(last, i + 1).trim());
-                }
-            }
-        }
-        return out;
-    }
-
-    private static String extractString(String json, String key) {
-        Pattern p = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:\\s*\"([^\"]*)\"");
-        Matcher m = p.matcher(json);
-        if (m.find()) {
-            return m.group(1);
-        }
-        return null;
-    }
-
-private static double extractDouble(String json, String key, double defaultVal) {
-    // More flexible regex that handles various number formats and whitespace
-    Pattern p = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:\\s*([0-9]+(?:\\.[0-9]*)?(?:[eE][+-]?[0-9]+)?)");
-    Matcher m = p.matcher(json);
-    if (m.find()) {
-        try {
-            String numberStr = m.group(1).trim();
-            return Double.parseDouble(numberStr);
-        } catch (Exception e) {
-            System.out.println("DEBUG: Failed to parse double from: '" + m.group(1) + "'");
-            return defaultVal;
-        }
-    } else {
-        System.out.println("DEBUG: No match for key: " + key + " in JSON: " + json);
-        return defaultVal;
-    }
-}
 
     /**
      * Save current users (User.getUsers()) into `src/Data/Users.json`.
@@ -610,8 +724,8 @@ private static double extractDouble(String json, String key, double defaultVal) 
 
             sb.append(" }");
             if (i < users.size() - 1) {
-                sb.append(",\n"); 
-            }else {
+                sb.append(",\n");
+            } else {
                 sb.append('\n');
             }
         }
@@ -626,6 +740,84 @@ private static double extractDouble(String json, String key, double defaultVal) 
         }
     }
 
+    /**
+     * Add a user to memory and persist immediately.
+     */
+    public static void addUser(User u) {
+        User.getUsers().add(u);
+        saveUsers();
+    }
+
+    // ==================== JSON HELPER METHODS ====================
+    private static List<String> splitJsonObjects(String arrayContent) {
+        List<String> out = new ArrayList<>();
+        int brace = 0;
+        int last = 0;
+        for (int i = 0; i < arrayContent.length(); i++) {
+            char c = arrayContent.charAt(i);
+            if (c == '{') {
+                if (brace == 0) {
+                    last = i;
+                }
+                brace++;
+            } else if (c == '}') {
+                brace--;
+                if (brace == 0) {
+                    out.add(arrayContent.substring(last, i + 1).trim());
+                }
+            }
+        }
+        return out;
+    }
+
+    private static String extractString(String json, String key) {
+        Pattern p = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:\\s*\"([^\"]*)\"");
+        Matcher m = p.matcher(json);
+        if (m.find()) {
+            return m.group(1);
+        }
+        return null;
+    }
+
+    private static double extractDouble(String json, String key, double defaultVal) {
+        Pattern p = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:\\s*([0-9.+-eE]+)");
+        Matcher m = p.matcher(json);
+        if (m.find()) {
+            try {
+                return Double.parseDouble(m.group(1));
+            } catch (Exception e) {
+                return defaultVal;
+            }
+        }
+        return defaultVal;
+    }
+
+    // ==================== USER MANAGEMENT METHODS (existing) ====================
+
+    private static long extractLong(String json, String key, long defaultVal) {
+        Pattern p = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:\\s*([0-9]+)");
+        Matcher m = p.matcher(json);
+        if (m.find()) {
+            try {
+                return Long.parseLong(m.group(1));
+            } catch (Exception e) {
+                return defaultVal;
+            }
+        }
+        return defaultVal;
+    }
+
+    // Helper method to extract a specific array from JSON
+    private static String extractJsonArray(String jsonContent, String arrayName) {
+        Pattern pattern = Pattern.compile("\"" + Pattern.quote(arrayName) + "\"\\s*:\\s*(\\[[^\\]]*\\])",
+                Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(jsonContent);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
+    }
+
     private static String escape(String s) {
         if (s == null) {
             return "";
@@ -633,11 +825,11 @@ private static double extractDouble(String json, String key, double defaultVal) 
         return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
     }
 
+    // ==================== FILE PATH METHODS ====================
     private static File getUsersFile() {
         try {
             File cwd = new File(".").getCanonicalFile();
             File dir = cwd;
-            // search upward for a folder containing `src`
             for (int i = 0; i < 10 && dir != null; i++) {
                 File src = new File(dir, "src");
                 if (src.exists() && src.isDirectory()) {
@@ -654,6 +846,7 @@ private static double extractDouble(String json, String key, double defaultVal) 
         try {
             File cwd = new File(".").getCanonicalFile();
             File dir = cwd;
+
             for (int i = 0; i < 10 && dir != null; i++) {
                 File src = new File(dir, "src");
                 if (src.exists() && src.isDirectory()) {
@@ -663,6 +856,7 @@ private static double extractDouble(String json, String key, double defaultVal) 
             }
         } catch (IOException ignored) {
         }
+
         return new File(RELATIVE_ROOMS_PATH);
     }
 
@@ -682,11 +876,19 @@ private static double extractDouble(String json, String key, double defaultVal) 
         return new File(RELATIVE_CONTRACTS_PATH);
     }
 
-    /**
-     * Add a user to memory and persist immediately.
-     */
-    public static void addUser(User u) {
-        User.getUsers().add(u);
-        saveUsers();
+    private static File getRequestsFile() {
+        try {
+            File cwd = new File(".").getCanonicalFile();
+            File dir = cwd;
+            for (int i = 0; i < 10 && dir != null; i++) {
+                File src = new File(dir, "src");
+                if (src.exists() && src.isDirectory()) {
+                    return new File(src, "Data" + File.separator + "Requests.json");
+                }
+                dir = dir.getParentFile();
+            }
+        } catch (IOException ignored) {
+        }
+        return new File(RELATIVE_REQUESTS_PATH);
     }
 }
