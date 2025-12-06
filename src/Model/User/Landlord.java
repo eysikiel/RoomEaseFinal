@@ -5,21 +5,24 @@ import Managements.RoomManagement;
 import Managements.TenantManagement;
 import Database.DatabaseManagement;
 import Managements.ContractManagement;
+import Managements.ViewingManagement;
 
 public class Landlord extends User {
 
     private RoomManagement roomManagement;
-    private TenantManagement tenantManagement; 
+    private TenantManagement tenantManagement;
     private DatabaseManagement databaseManager;
     private ContractManagement contractManager;
+    private ViewingManagement viewingManagement;
 
     public Landlord(String contactNumber, String firstName, String lastName, String password, String userID,
             String username, User.Role role) {
         super(contactNumber, firstName, lastName, password, userID, username, role);
         this.databaseManager = new DatabaseManagement();
         this.roomManagement = new RoomManagement();
-        this.tenantManagement = new TenantManagement(); 
+        this.tenantManagement = new TenantManagement();
         this.contractManager = new ContractManagement();
+        this.viewingManagement = new ViewingManagement();
     }
 
     public RoomManagement getRoomManagement() {
@@ -36,6 +39,10 @@ public class Landlord extends User {
 
     public ContractManagement getContractManagement() {
         return this.contractManager;
+    }
+
+    public ViewingManagement getViewingManagement() {
+        return this.viewingManagement;
     }
 
     public void setRoomManagement(RoomManagement roomManagement) {
@@ -58,7 +65,7 @@ public class Landlord extends User {
         System.out.println("Name:           " + getFirstName() + " " + getLastName());
         System.out.println("Username:       " + getUsername());
         System.out.println("Contact:        " + getContactNumber());
-        System.out.println("Landlord ID:    " + getUserID()); 
+        System.out.println("Landlord ID:    " + getUserID());
         System.out.println("Role:           " + getRole());
         System.out.println("-------------------------------------------------");
     }
@@ -69,7 +76,7 @@ public class Landlord extends User {
 
     public void accessTenantManagement() {
         System.out.println("Opening Tenant Management...");
-        getTenantManagement().displayMenu(); 
+        getTenantManagement().displayMenu();
     }
 
     public void accessBilling() {
@@ -79,7 +86,7 @@ public class Landlord extends User {
 
     public void accessViewingRequests() {
         System.out.println("Opening Viewing Requests...");
-        System.out.println("Viewing Requests feature coming soon!");
+        getViewingManagement().displayMenu();
     }
 
     public void accessApplications() {
@@ -134,7 +141,7 @@ public class Landlord extends User {
 
             choice = InputValidator.getMenuChoice(12);
             if (choice == -1) {
-                continue; 
+                continue;
             }
             handleLandlordChoice(choice);
         } while (choice != 12);
