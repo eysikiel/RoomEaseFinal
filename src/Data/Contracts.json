@@ -1,0 +1,5 @@
+{
+  "contracts": [
+    {"contractID": "CNT01", "tenantID": "TNT004", "roomID": "R6", "startDate": 1764000000000, "endDate": 1766592000000, "monthlyRent": 4000.0, "deposit": 1500.0, "status": "Terminated", "terminationReason": "bad payer" }
+  ]
+}
